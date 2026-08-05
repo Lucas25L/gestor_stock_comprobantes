@@ -1,0 +1,57 @@
+<aside class="sidebar">
+
+    <div class="logo-section">
+        <h2>LL Dev System</h2>
+        <span>Sistema de Comprobantes</span>
+    </div>
+
+    <nav class="menu">
+
+        <a
+            routerLink="/dashboard"
+            routerLinkActive="active-link">
+            <i class="pi pi-home"></i>
+            Dashboard
+        </a>
+
+        <a
+            routerLink="/productos"
+            routerLinkActive="active-link">
+            <i class="pi pi-box"></i>
+            Productos
+        </a>
+
+        <a
+            routerLink="/ventas"
+            routerLinkActive="active-link">
+            <i class="pi pi-shopping-cart"></i>
+            Ventas
+        </a>
+
+        <a
+            routerLink="/comprobantes"
+            routerLinkActive="active-link">
+            <i class="pi pi-file-pdf"></i>
+            Comprobantes
+        </a>
+
+    </nav>
+
+    <div class="user-panel">
+
+        <div class="user-info">
+            <strong>{{ authService.usuarioActual()?.username }}</strong>
+            <small>{{ authService.usuarioActual()?.email }}</small>
+        </div>
+
+        <button
+            pButton
+            label="Cerrar Sesión"
+            icon="pi pi-sign-out"
+            severity="danger"
+            (click)="authService.logout()">
+        </button>
+
+    </div>
+
+</aside>

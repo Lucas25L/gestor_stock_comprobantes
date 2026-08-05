@@ -1,0 +1,25 @@
+# Angular / Node
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/coverage/
+frontend/npm-debug.log*
+
+# Django / Python
+backend/venv/
+backend/env/
+backend/**/__pycache__/
+backend/*.sqlite3
+backend/.env
+backend/staticfiles/
+backend/media/
+backend/*.pyc
+
+# Editores / SO
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs generales
+*.log

@@ -1,0 +1,58 @@
+@media print {
+    /* Ocultamos el botón de imprimir y todo elemento que tenga la clase .no-print */
+    .no-print, p-menubar, .p-menubar, button {
+        display: none !important;
+    }
+
+    /* Quitamos sombras y fondos grises pesados de la hoja */
+    .unique-invoice {
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border: none !important;
+    }
+
+    body {
+        background-color: #ffffff !important;
+    }
+}
+
+/*
+ * El comprobante es una "isla de documento claro" (fondo blanco fijo,
+ * pensada para imprimirse) dentro de una app con tema oscuro.
+ * Por eso NO usamos las clases de texto de PrimeFlex (text-600, text-700, etc.),
+ * ya que esas siguen los tokens del tema activo y en modo oscuro se vuelven
+ * grises muy claros (ilegibles sobre fondo blanco). Acá usamos colores fijos.
+ */
+.ic-text-muted {
+    color: #64748b !important;
+}
+
+.ic-text-strong {
+    color: #1e293b !important;
+}
+
+.ic-border-bottom {
+    border-bottom: 1px solid #e2e8f0 !important;
+}
+
+.ic-border-top {
+    border-top: 1px solid #e2e8f0 !important;
+}
+
+/*
+ * Igual que en carrito-venta: la p-table sigue el tema oscuro global
+ * en vez del bg-white de la card. Forzamos colores claros fijos para
+ * que la tabla sea consistente con el resto del documento impreso.
+ */
+:host ::ng-deep .p-datatable-thead > tr > th {
+    background: #f8fafc !important;
+    color: #1e293b !important;
+    border-color: #e2e8f0 !important;
+}
+
+:host ::ng-deep .p-datatable-tbody > tr > td {
+    background: #ffffff !important;
+    color: #1e293b !important;
+    border-color: #e2e8f0 !important;
+}

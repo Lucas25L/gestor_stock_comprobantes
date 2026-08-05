@@ -1,0 +1,79 @@
+<div class="grid p-fluid">
+    <div class="col-12 md:col-4">
+        <div class="card p-4 shadow-1 border-round bg-white">
+            <h3 class="mt-0 text-900">Nuevo Producto</h3>
+
+            <div class="field mb-3">
+                <label for="nombre" class="block font-bold mb-1">Nombre</label>
+                <input pInputText id="nombre" [(ngModel)]="nuevoNombre" type="text" placeholder="Ej: Arroz" />
+            </div>
+
+            <div class="field mb-3">
+                <label for="precio" class="block font-bold mb-1">Precio</label>
+                <input pInputText id="precio" [(ngModel)]="nuevoPrecio" type="number" placeholder="0.00" />
+            </div>
+
+            <div class="field mb-3">
+                <label for="stock" class="block font-bold mb-1">Stock Inicial</label>
+                <input pInputText id="stock" [(ngModel)]="nuevoStock" type="number" placeholder="0" />
+            </div>
+
+            <div class="field mb-4">
+                <label for="categoria" class="block font-bold mb-1">Categoría</label>
+                <p-select
+                    id="categoria"
+                    [options]="categorias()"
+                    optionLabel="nombre"
+                    optionValue="id"
+                    [(ngModel)]="nuevaCategoria"
+                    placeholder="Seleccioná una categoría"
+                    class="w-full">
+                </p-select>
+            </div>
+
+            @if (error()) {
+                <p class="text-red-600 text-sm mb-3">{{ error() }}</p>
+            }
+
+            <button
+                pButton
+                label="Agregar Producto"
+                icon="pi pi-plus"
+                class="p-button-primary"
+                [loading]="guardando()"
+                (click)="guardarProducto()">
+            </button>
+        </div>
+    </div>
+
+    <div class="col-12 md:col-8">
+        <div class="card p-4 shadow-1 border-round bg-white">
+            <h3 class="mt-0 text-900">Inventario de Productos</h3>
+
+            <p-table [value]="productos()" [rows]="5" [paginator]="true" class="w-full">
+                <ng-template #header>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Categoría</th>
+                        <th>Precio</th>
+                        <th>Stock</th>
+                    </tr>
+                </ng-template>
+                <ng-template #body let-prod>
+                    <tr>
+                        <td>{{ prod.id }}</td>
+                        <td>{{ prod.nombre }}</td>
+                        <td>{{ prod.categoriaNombre }}</td>
+                        <td class="font-semibold text-blue-600">${{ prod.precio | number:'1.2-2' }}</td>
+                        <td>
+                            <span [class]="prod.stock > 10 ? 'text-green-600' : 'text-red-600 font-bold'">
+                                {{ prod.stock }} u.
+                            </span>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>
