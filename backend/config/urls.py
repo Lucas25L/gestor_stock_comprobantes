@@ -13,10 +13,16 @@ from apps.usuarios.views import (
 )
 
 urlpatterns = [
+    
+    # Habilita el panel administrativo de Django
     path('admin/', admin.site.urls),
+    
+    # endpoints relacionados con autenticación
     path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', CustomTokenRefreshView.as_view(), name='token_refresh'),
     path('api/logout/', LogoutView.as_view(), name='logout'),
+    
+    #Acá delegás las rutas de tu aplicación al archivo api_router.py.
     path('api/', include('config.api_router')),
 
     # Documentación de la API

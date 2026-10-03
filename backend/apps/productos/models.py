@@ -13,7 +13,7 @@ class Producto(models.Model):
     categoria = models.ForeignKey(
         Categoria,
         on_delete=models.PROTECT,
-        related_name='productos',
+        related_name='productos', # Para obtener productos de una categoría: categoria.productos.all()
     )
     activo = models.BooleanField(default=True)
     creado_en = models.DateTimeField(auto_now_add=True)

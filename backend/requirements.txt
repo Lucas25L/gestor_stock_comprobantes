@@ -1,7 +1,23 @@
+# Framework principal para desarrollar la aplicación web.
 Django>=5.1,<5.2
+
+# Herramientas para crear APIs REST con Django.
 djangorestframework>=3.15
+
+# Autenticación de APIs mediante tokens JWT.
 djangorestframework-simplejwt>=5.3
+
+# Adaptador para conectar Django con PostgreSQL.
 psycopg2-binary>=2.9
+
+# Configuración de políticas CORS para permitir solicitudes entre orígenes.
 django-cors-headers>=4.4
+
+# Gestión de variables de configuración desde archivos de entorno.
 python-decouple>=3.8
+
+# Generación de documentación OpenAPI para la API.
 drf-spectacular>=0.27
+
+
+# pip install -r requirements.txt
