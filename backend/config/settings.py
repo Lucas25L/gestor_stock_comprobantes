@@ -6,8 +6,8 @@ from decouple import config
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = config('SECRET_KEY')
-DEBUG = config('DEBUG', default=False, cast=bool)
+SECRET_KEY = config('SECRET_KEY') # La SECRET_KEY es una clave privada utilizada por Django para funciones de seguridad,
+DEBUG = config('DEBUG', default=False, cast=bool) # mientras que DEBUG controla si la aplicación se ejecuta en modo desarrollo o producción.
 
 ALLOWED_HOSTS = []
 
@@ -21,12 +21,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
-    # Terceros
-    'rest_framework',
-    'rest_framework_simplejwt',
-    'corsheaders',
-    'rest_framework_simplejwt.token_blacklist',
-    'drf_spectacular',
+    # Terceros 
+    'rest_framework', # para construir APIs RESTful
+    'rest_framework_simplejwt', # para autenticación basada en tokens JWT
+    'corsheaders', # permite configurar solicitudesentre distintos orígenes
+    'rest_framework_simplejwt.token_blacklist', # Carga en una lista los tokens que han caducado
+    'drf_spectacular', # para generar documentación de la API en formato OpenAPI/Swagger
 
     # Apps propias
     'apps.usuarios',
@@ -37,7 +37,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
+    'corsheaders.middleware.CorsMiddleware', # antes de CommonMiddleware
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -66,11 +66,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/6.0/ref/settings/#databases
-
-DATABASES = {
+# tiene relacion directa con .env evitando escribir credenciales directamente en settings.py 
+DATABASES = { 
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': config('DB_NAME'),
@@ -80,15 +77,19 @@ DATABASES = {
         'PORT': config('DB_PORT'),
     }
 }
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication', #Para autenticar las requests, utilizá JWT.
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.IsAuthenticated', # Por defecto, todos los endpoints de mi API requieren un usuario autenticado.
     ),
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
+
+AUTH_USER_MODEL = 'usuarios.Usuario'
+
 SPECTACULAR_SETTINGS = {
     'TITLE': 'API Sistema de Comprobantes',
     'DESCRIPTION': 'Sistema de gestión de pedidos y comprobantes para kiosco de barrio con reparto.',
