@@ -1,5 +1,5 @@
 # Framework principal para desarrollar la aplicación web.
-Django>=5.1,<5.2
+Django>=5.2.8,<5.3
 
 # Herramientas para crear APIs REST con Django.
 djangorestframework>=3.15
