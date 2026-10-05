@@ -26,6 +26,14 @@ MATRIZ = [
     ('delete', '/api/ventas/999999/', ADMIN_Y_CAJERO),
     ('get', '/api/comprobantes/', ADMIN_Y_CAJERO),
     ('post', '/api/comprobantes/', ADMIN_Y_CAJERO),
+    
+    ('get', '/api/usuarios/', ADMIN),
+    ('get', '/api/usuarios/999999/', ADMIN),
+    ('post', '/api/usuarios/', ADMIN),
+    ('patch', '/api/usuarios/999999/', ADMIN),
+    ('post', '/api/usuarios/999999/activar/', ADMIN),
+    ('post', '/api/usuarios/999999/desactivar/', ADMIN),
+    ('get', '/api/roles/', ADMIN),
 ]
 
 

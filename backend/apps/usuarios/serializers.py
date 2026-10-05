@@ -1,11 +1,17 @@
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, password_validation
+
 from rest_framework import serializers
+
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.serializers import (
     TokenObtainPairSerializer,
     TokenRefreshSerializer,
 )
 from rest_framework_simplejwt.tokens import RefreshToken
+
+from .models import Rol
+from .services import es_ultimo_administrador
+
 
 """ Serializers personalizados para tokens JWT """
 User = get_user_model()
@@ -64,3 +70,54 @@ class LogoutSerializer(serializers.Serializer):
             raise serializers.ValidationError('Token inválido o ya expirado.')
 
         return attrs # si todo es correcto, devolvemos los atributos validados (aunque no hay nada que devolver en este caso)
+
+class RolSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Rol
+        fields = ('id', 'nombre', 'descripcion', 'activo')
+        read_only_fields = fields
+
+
+class UsuarioSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(
+        write_only=True, required=False, style={'input_type': 'password'}
+    )
+    rol = serializers.PrimaryKeyRelatedField(queryset=Rol.objects.filter(activo=True))
+    rol_nombre = serializers.CharField(source='rol.nombre', read_only=True)
+
+    class Meta:
+        model = User
+        fields = (
+            'id', 'username', 'email', 'first_name', 'last_name',
+            'rol', 'rol_nombre', 'is_active', 'password', 'date_joined',
+        )
+        read_only_fields = ('id', 'is_active', 'date_joined')
+
+    def validate_password(self, value):
+        password_validation.validate_password(value)
+        return value
+
+    def validate(self, attrs):
+        if self.instance is None and 'password' not in attrs:
+            raise serializers.ValidationError({'password': 'Este campo es obligatorio.'})
+
+        nuevo_rol = attrs.get('rol')
+        if self.instance is not None and nuevo_rol and nuevo_rol != self.instance.rol:
+            era_admin = self.instance.rol.nombre == Rol.Nombre.ADMINISTRADOR
+            if era_admin and self.instance.is_active and es_ultimo_administrador(self.instance):
+                raise serializers.ValidationError(
+                    {'rol': 'No se puede quitar el rol al último administrador activo.'}
+                )
+        return attrs
+
+    def create(self, validated_data):
+        password = validated_data.pop('password')
+        return User.objects.create_user(password=password, **validated_data)
+
+    def update(self, instance, validated_data):
+        password = validated_data.pop('password', None)
+        usuario = super().update(instance, validated_data)
+        if password:
+            usuario.set_password(password)
+            usuario.save(update_fields=['password'])
+        return usuario
