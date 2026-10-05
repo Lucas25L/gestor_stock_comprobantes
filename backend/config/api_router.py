@@ -8,6 +8,7 @@ from apps.ventas.views import VentaViewSet
 from apps.usuarios.views import RolViewSet, UsuarioViewSet
 
 from apps.auditoria.views import AuditoriaViewSet
+from apps.unidades.views import UnidadMedidaViewSet
 
 router = DefaultRouter()
 router.register('categorias', CategoriaViewSet, basename='categoria')
@@ -18,5 +19,7 @@ router.register('usuarios', UsuarioViewSet, basename='usuario')
 router.register('comprobantes', ComprobanteViewSet, basename='comprobante')
 
 router.register('auditoria', AuditoriaViewSet, basename='auditoria')
+router.register('unidades', UnidadMedidaViewSet, basename='unidad')
+
 
 urlpatterns = router.urls

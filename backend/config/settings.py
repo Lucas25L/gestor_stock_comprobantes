@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     # Apps propias
     'apps.usuarios',
     'apps.categorias',
+    'apps.unidades',
     'apps.productos',
     'apps.ventas',
     'apps.comprobantes',
