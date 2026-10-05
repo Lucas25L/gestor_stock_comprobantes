@@ -10,15 +10,20 @@ from rest_framework_simplejwt.tokens import RefreshToken
 """ Serializers personalizados para tokens JWT """
 User = get_user_model()
 
+def datos_usuario(usuario):
+    """Datos del usuario que viajan en las respuestas de login y refresh."""
+    return {
+        'id': usuario.id,
+        'username': usuario.username,
+        'email': usuario.email,
+        'rol': usuario.rol.nombre,
+    }
+
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer): # heredamos de TokenObtainPairSerializer para personalizar la respuesta del endpoint de login
     def validate(self, attrs):
         data = super().validate(attrs) # accedemos a la implementacion de TokenObtainPairSerializer
 
-        data['usuario'] = {
-            'id': self.user.id,
-            'username': self.user.username,
-            'email': self.user.email,
-        }
+        data['usuario'] = datos_usuario(self.user)
 
         return data
 
@@ -39,12 +44,8 @@ class CookieTokenRefreshSerializer(TokenRefreshSerializer): # heredamos de Token
 
         data = super().validate(attrs)
 
-        usuario = User.objects.get(id=user_id)
-        data['usuario'] = {
-            'id': usuario.id,
-            'username': usuario.username,
-            'email': usuario.email,
-        }
+        usuario = User.objects.select_related('rol').get(id=user_id)
+        data['usuario'] = datos_usuario(usuario)
 
         return data
 
