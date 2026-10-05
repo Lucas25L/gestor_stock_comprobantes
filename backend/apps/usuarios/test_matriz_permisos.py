@@ -34,6 +34,9 @@ MATRIZ = [
     ('post', '/api/usuarios/999999/activar/', ADMIN),
     ('post', '/api/usuarios/999999/desactivar/', ADMIN),
     ('get', '/api/roles/', ADMIN),
+
+    ('get', '/api/auditoria/', ADMIN),
+    ('get', '/api/auditoria/999999/', ADMIN),
 ]
 
 

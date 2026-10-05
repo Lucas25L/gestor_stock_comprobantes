@@ -10,6 +10,7 @@ from apps.usuarios.permissions import EsAdministrador, EsCajero
 class VentaViewSet(viewsets.ModelViewSet):
     permission_classes = (EsAdministrador | EsCajero,)
     http_method_names = ('get', 'post', 'delete', 'head', 'options')
+    
     serializer_class = VentaSerializer
     filterset_fields = ('usuario', 'activa')
     ordering_fields = ('fecha', 'total')

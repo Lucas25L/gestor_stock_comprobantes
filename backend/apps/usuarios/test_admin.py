@@ -11,6 +11,8 @@ class PantallasDelAdminTests(TestCase):
             '/admin/usuarios/usuario/',
             '/admin/usuarios/usuario/add/',
             '/admin/usuarios/rol/',
+
+            '/admin/auditoria/auditoria/',
         ):
             with self.subTest(ruta=ruta):
                 self.assertEqual(self.client.get(ruta).status_code, 200)
