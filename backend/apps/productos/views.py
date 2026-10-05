@@ -6,8 +6,14 @@ from rest_framework.response import Response
 from .models import Producto
 from .serializers import ProductoSerializer
 
+from apps.usuarios.permissions import CualquierRol, PermisosPorAccionMixin
 
-class ProductoViewSet(viewsets.ModelViewSet):
+
+class ProductoViewSet(PermisosPorAccionMixin, viewsets.ModelViewSet):
+    permisos_por_accion = {
+        'list': (CualquierRol,),
+        'retrieve': (CualquierRol,),
+    }
     serializer_class = ProductoSerializer
     filterset_fields = ('categoria', 'activo')
     search_fields = ('nombre', 'codigo_barras')

@@ -4,9 +4,13 @@ from rest_framework import serializers, viewsets
 from .models import Comprobante
 from .serializers import ComprobanteSerializer
 
+from apps.usuarios.permissions import EsAdministrador, EsCajero
+
 
 class ComprobanteViewSet(viewsets.ModelViewSet):
+    permission_classes = (EsAdministrador | EsCajero,)
     http_method_names = ('get', 'post', 'head', 'options')
+    
     queryset = Comprobante.objects.select_related('venta').all()
     serializer_class = ComprobanteSerializer
     filterset_fields = ('venta',)

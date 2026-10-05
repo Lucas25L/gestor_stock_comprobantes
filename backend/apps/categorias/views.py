@@ -6,9 +6,16 @@ from rest_framework.response import Response
 from .models import Categoria
 from .serializers import CategoriaSerializer
 
+from apps.usuarios.permissions import CualquierRol, PermisosPorAccionMixin
 
-class CategoriaViewSet(viewsets.ModelViewSet): #Al heredar de ModelViewSet, DRF te da automáticamente los 5 endpoints CRUD estándar
+
+class CategoriaViewSet(PermisosPorAccionMixin, viewsets.ModelViewSet):
+    permisos_por_accion = {
+        'list': (CualquierRol,),
+        'retrieve': (CualquierRol,),
+    }
     serializer_class = CategoriaSerializer
+
     filterset_fields = ('activa',)
     search_fields = ('nombre',)
     ordering_fields = ('nombre', 'creado_en')

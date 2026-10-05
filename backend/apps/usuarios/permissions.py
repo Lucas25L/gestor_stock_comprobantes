@@ -30,3 +30,20 @@ class EsCajero(TieneRol):
 
 class EsRepositor(TieneRol):
     roles_permitidos = (Rol.Nombre.REPOSITOR,)
+
+CualquierRol = EsAdministrador | EsCajero | EsRepositor
+
+
+class PermisosPorAccionMixin:
+    """Permite declarar permisos distintos según la acción de un ViewSet.
+
+    Lo que no esté en `permisos_por_accion` cae en `permission_classes`,
+    que por defecto es solo Administrador (se deniega por defecto).
+    """
+
+    permission_classes = (EsAdministrador,)
+    permisos_por_accion = {}
+
+    def get_permissions(self):
+        clases = self.permisos_por_accion.get(self.action, self.permission_classes)
+        return [clase() for clase in clases]

@@ -6,8 +6,9 @@ from django.test import TestCase
 from .models import Rol, Usuario
 from .permissions import EsAdministrador, EsCajero, EsRepositor
 
-
+# TestCase de Django crea una base de datos temporal (test_sistema_comprobantes), le aplica todas las migraciones, ejecuta los tests y la borra al terminar.
 class PermisosPorRolTests(TestCase):
+    # setUpTestData arma un usuario por rol una sola vez para toda la clase.
     @classmethod
     def setUpTestData(cls):
         # Los tres roles ya existen: los carga la migración 0002_cargar_roles.
@@ -19,6 +20,7 @@ class PermisosPorRolTests(TestCase):
                 rol=Rol.objects.get(nombre=nombre),
             )
 
+    # _permite es un método auxiliar que simula una request con un usuario dado y evalúa si el permiso dado permite el acceso.
     def _permite(self, clase_permiso, usuario):
         request = SimpleNamespace(user=usuario)
         return clase_permiso().has_permission(request, None)
