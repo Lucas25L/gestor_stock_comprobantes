@@ -6,8 +6,8 @@ from .models import UnidadMedida
 class UnidadMedidaSerializer(serializers.ModelSerializer):
     class Meta:
         model = UnidadMedida
-        fields = ('id', 'nombre', 'abreviatura', 'activo')
-        read_only_fields = ('id',)
+        fields = ('id', 'nombre', 'abreviatura', 'permite_decimales', 'activo')
+        read_only_fields = ('id', 'activo')
 
     def _validar_unico_sin_distinguir_mayusculas(self, campo, valor):
         repetidas = UnidadMedida.objects.filter(**{f'{campo}__iexact': valor})

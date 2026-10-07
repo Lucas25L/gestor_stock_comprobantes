@@ -1,8 +1,10 @@
 from drf_spectacular.utils import extend_schema
+
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
 
 from apps.usuarios.permissions import CualquierRol, PermisosPorAccionMixin
 
@@ -21,6 +23,11 @@ class UnidadMedidaViewSet(PermisosPorAccionMixin, viewsets.ModelViewSet):
         return queryset
 
     def perform_destroy(self, instance):
+        en_uso = instance.productos.filter(activo=True).count()
+        if en_uso:
+            raise ValidationError(
+                {'detail': f'No se puede desactivar: la usan {en_uso} producto(s) activo(s).'}
+            )
         instance.activo = False
         instance.save(update_fields=['activo'])
 

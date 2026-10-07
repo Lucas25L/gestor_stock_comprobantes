@@ -31,6 +31,23 @@ class UnidadesDeMedidaApiTests(TestCase):
         iniciales = set(UnidadMedida.objects.filter(activo=True).values_list('abreviatura', flat=True))
         self.assertEqual(iniciales, {'u', 'kg', 'l'})
 
+    def test_kilogramo_y_litro_permiten_decimales_y_unidad_no(self):
+        permiten = dict(UnidadMedida.objects.values_list('abreviatura', 'permite_decimales'))
+        self.assertEqual(permiten, {'u': False, 'kg': True, 'l': True})
+
+    def test_admite_cantidad_segun_la_unidad(self):
+        unidad = UnidadMedida.objects.get(abreviatura='u')
+        kilo = UnidadMedida.objects.get(abreviatura='kg')
+        self.assertTrue(unidad.admite_cantidad(3))
+        self.assertTrue(unidad.admite_cantidad('3.000'))
+        self.assertFalse(unidad.admite_cantidad('2.5'))
+        self.assertTrue(kilo.admite_cantidad('2.5'))
+
+    def test_activo_no_se_modifica_por_patch(self):
+        creada = self._crear().data
+        self.cliente.patch(f"/api/unidades/{creada['id']}/", {'activo': False}, format='json')
+        self.assertTrue(UnidadMedida.objects.get(pk=creada['id']).activo)
+
     def test_el_administrador_crea_una_unidad(self):
         respuesta = self._crear()
         self.assertEqual(respuesta.status_code, 201, respuesta.data)

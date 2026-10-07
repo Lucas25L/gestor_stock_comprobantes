@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.db.models import Q
 
 from apps.productos.models import Producto
 
@@ -33,12 +34,17 @@ class DetalleVenta(models.Model):
         on_delete=models.PROTECT,
         related_name='detalles_venta',
     )
-    cantidad = models.PositiveIntegerField()
+    cantidad = models.DecimalField(max_digits=12, decimal_places=3)
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
     subtotal = models.DecimalField(max_digits=10, decimal_places=2)
 
     class Meta:
         ordering = ('id',)
+        constraints = [
+            models.CheckConstraint(
+                condition=Q(cantidad__gt=0), name='detalleventa_cantidad_positiva'
+            ),
+        ]
 
     def __str__(self):
         return f'{self.cantidad} x {self.producto.nombre}'

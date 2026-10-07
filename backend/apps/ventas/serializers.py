@@ -1,4 +1,4 @@
-from decimal import Decimal
+from decimal import ROUND_HALF_UP, Decimal
 
 from django.db import transaction
 from rest_framework import serializers
@@ -22,8 +22,10 @@ class DetalleVentaSerializer(serializers.ModelSerializer):
 
 class DetalleVentaInputSerializer(serializers.Serializer):
     """Serializer de solo entrada: lo que el frontend manda al crear una venta."""
-    producto = serializers.PrimaryKeyRelatedField(queryset=Producto.objects.filter(activo=True))
-    cantidad = serializers.IntegerField(min_value=1)
+    producto = serializers.PrimaryKeyRelatedField(
+        queryset=Producto.objects.filter(activo=True).select_related('unidad')
+    )
+    cantidad = serializers.DecimalField(max_digits=12, decimal_places=3, min_value=Decimal('0.001'))
 
 
 class VentaSerializer(serializers.ModelSerializer):
@@ -44,6 +46,11 @@ class VentaSerializer(serializers.ModelSerializer):
 
         for item in items:
             producto = item['producto']
+            if not producto.unidad.admite_cantidad(item['cantidad']):
+                raise serializers.ValidationError(
+                    f'"{producto.nombre}" se vende por {producto.unidad.nombre.lower()} '
+                    f'y solo admite cantidades enteras.'
+                )
             if producto.stock < item['cantidad']:
                 raise serializers.ValidationError(
                     f'Stock insuficiente para "{producto.nombre}". '
@@ -63,7 +70,9 @@ class VentaSerializer(serializers.ModelSerializer):
             producto = item['producto']
             cantidad = item['cantidad']
             precio_unitario = producto.precio
-            subtotal_item = precio_unitario * cantidad
+            subtotal_item = (precio_unitario * cantidad).quantize(
+                Decimal('0.01'), rounding=ROUND_HALF_UP
+            )
             total += subtotal_item
 
             detalles_a_crear.append({
