@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'apps.categorias',
     'apps.unidades',
     'apps.productos',
+    'apps.stock',
     'apps.ventas',
     'apps.comprobantes',
     'apps.auditoria',
