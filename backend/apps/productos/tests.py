@@ -1,5 +1,3 @@
-from django.test import TestCase
-
 from decimal import Decimal
 
 from django.db import IntegrityError, transaction
@@ -30,7 +28,7 @@ class ProductosConUnidadYCantidadesDecimalesTests(TestCase):
 
     def _datos(self, **extra):
         datos = {
-            'nombre': 'Pan francés', 'precio': '1000.00', 'stock': '0', 'stock_minimo': '0',
+            'nombre': 'Pan francés', 'precio': '1000.00', 'stock_minimo': '0',
             'categoria': self.categoria.pk, 'unidad': self.por_kilo.pk,
         }
         datos.update(extra)
@@ -58,37 +56,43 @@ class ProductosConUnidadYCantidadesDecimalesTests(TestCase):
         self.assertEqual(respuesta.status_code, 400)
         self.assertIn('unidad', respuesta.data)
 
-    def test_por_kilo_acepta_stock_decimal(self):
-        respuesta = self._crear(stock='2.500', stock_minimo='0.750')
+    def test_por_kilo_acepta_stock_minimo_decimal(self):
+        respuesta = self._crear(stock_minimo='0.750')
         self.assertEqual(respuesta.status_code, 201, respuesta.data)
         producto = Producto.objects.get(pk=respuesta.data['id'])
-        self.assertEqual(producto.stock, Decimal('2.500'))
         self.assertEqual(producto.stock_minimo, Decimal('0.750'))
 
-    def test_por_unidad_rechaza_cantidades_decimales(self):
-        respuesta = self._crear(unidad=self.por_unidad.pk, stock='2.5')
-        self.assertEqual(respuesta.status_code, 400)
-        self.assertIn('stock', respuesta.data)
+    def test_el_stock_no_se_puede_fijar_por_la_api(self):
+        respuesta = self._crear(stock='99')
+        self.assertEqual(respuesta.status_code, 201, respuesta.data)
+        self.assertEqual(Producto.objects.get(pk=respuesta.data['id']).stock, Decimal('0'))
+
+        url = f"/api/productos/{respuesta.data['id']}/"
+        respuesta = self.cliente.patch(url, {'stock': '50'}, format='json')
+        self.assertEqual(respuesta.status_code, 200, respuesta.data)
+        self.assertEqual(Producto.objects.get(pk=respuesta.data['id']).stock, Decimal('0'))
+        self.assertEqual(respuesta.data['stock'], '0.000')
+
+    def test_por_unidad_rechaza_stock_minimo_decimal(self):
         respuesta = self._crear(unidad=self.por_unidad.pk, stock_minimo='1.5')
         self.assertEqual(respuesta.status_code, 400)
         self.assertIn('stock_minimo', respuesta.data)
-        self.assertEqual(self._crear(unidad=self.por_unidad.pk, stock='3').status_code, 201)
+        self.assertEqual(self._crear(unidad=self.por_unidad.pk, stock_minimo='3').status_code, 201)
 
     def test_rechaza_mas_de_tres_decimales_y_valores_negativos(self):
-        self.assertEqual(self._crear(stock='1.2345').status_code, 400)
-        self.assertEqual(self._crear(stock='-1').status_code, 400)
+        self.assertEqual(self._crear(stock_minimo='1.2345').status_code, 400)
         self.assertEqual(self._crear(stock_minimo='-0.5').status_code, 400)
 
     def test_cambiar_de_kilo_a_unidad_exige_stock_entero(self):
-        creado = self._crear(stock='2.500').data
+        creado = self._crear().data
+        Producto.objects.filter(pk=creado['id']).update(stock=Decimal('2.500'))
         url = f"/api/productos/{creado['id']}/"
         respuesta = self.cliente.patch(url, {'unidad': self.por_unidad.pk}, format='json')
         self.assertEqual(respuesta.status_code, 400)
         self.assertIn('stock', respuesta.data)
 
-        respuesta = self.cliente.patch(
-            url, {'unidad': self.por_unidad.pk, 'stock': '3'}, format='json'
-        )
+        Producto.objects.filter(pk=creado['id']).update(stock=Decimal('3'))
+        respuesta = self.cliente.patch(url, {'unidad': self.por_unidad.pk}, format='json')
         self.assertEqual(respuesta.status_code, 200, respuesta.data)
 
     def test_la_base_de_datos_rechaza_stock_negativo(self):

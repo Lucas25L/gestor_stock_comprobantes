@@ -6,6 +6,7 @@ from .models import Rol, Usuario
 TODOS = {'Administrador', 'Cajero', 'Repositor'}
 ADMIN = {'Administrador'}
 ADMIN_Y_CAJERO = {'Administrador', 'Cajero'}
+ADMIN_Y_REPOSITOR = {'Administrador', 'Repositor'}
 
 # (método HTTP, ruta, roles que deben poder pasar)
 MATRIZ = [
@@ -26,24 +27,25 @@ MATRIZ = [
     ('delete', '/api/ventas/999999/', ADMIN_Y_CAJERO),
     ('get', '/api/comprobantes/', ADMIN_Y_CAJERO),
     ('post', '/api/comprobantes/', ADMIN_Y_CAJERO),
-    
-    ('get', '/api/usuarios/', ADMIN),
-    ('get', '/api/usuarios/999999/', ADMIN),
-    ('post', '/api/usuarios/', ADMIN),
-    ('patch', '/api/usuarios/999999/', ADMIN),
-    ('post', '/api/usuarios/999999/activar/', ADMIN),
-    ('post', '/api/usuarios/999999/desactivar/', ADMIN),
-    ('get', '/api/roles/', ADMIN),
-
-    ('get', '/api/auditoria/', ADMIN),
-    ('get', '/api/auditoria/999999/', ADMIN),
-
     ('get', '/api/unidades/', TODOS),
     ('get', '/api/unidades/999999/', TODOS),
     ('post', '/api/unidades/', ADMIN),
     ('patch', '/api/unidades/999999/', ADMIN),
     ('delete', '/api/unidades/999999/', ADMIN),
     ('post', '/api/unidades/999999/reactivar/', ADMIN),
+    ('get', '/api/usuarios/', ADMIN),
+    ('get', '/api/usuarios/999999/', ADMIN),
+    ('post', '/api/usuarios/', ADMIN),
+    ('patch', '/api/usuarios/999999/', ADMIN),
+    ('post', '/api/usuarios/999999/activar/', ADMIN),
+    ('post', '/api/usuarios/999999/desactivar/', ADMIN),
+    ('get', '/api/stock/movimientos/', ADMIN_Y_REPOSITOR),
+    ('get', '/api/stock/movimientos/999999/', ADMIN_Y_REPOSITOR),
+    ('post', '/api/stock/ingresos/', ADMIN_Y_REPOSITOR),
+    ('post', '/api/stock/ajustes/', ADMIN_Y_REPOSITOR),
+    ('get', '/api/roles/', ADMIN),
+    ('get', '/api/auditoria/', ADMIN),
+    ('get', '/api/auditoria/999999/', ADMIN),
 ]
 
 

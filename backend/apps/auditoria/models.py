@@ -27,6 +27,8 @@ class Auditoria(models.Model):
         USUARIO_MODIFICADO = 'usuario_modificado', 'Usuario modificado'
         USUARIO_ACTIVADO = 'usuario_activado', 'Usuario activado'
         USUARIO_DESACTIVADO = 'usuario_desactivado', 'Usuario desactivado'
+        INGRESO_STOCK = 'ingreso_stock', 'Ingreso de stock'
+        AJUSTE_STOCK = 'ajuste_stock', 'Ajuste de stock'
 
     usuario = models.ForeignKey(
         settings.AUTH_USER_MODEL,

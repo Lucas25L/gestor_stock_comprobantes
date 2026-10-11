@@ -22,15 +22,15 @@ class ProductoSerializer(serializers.ModelSerializer):
             'unidad_nombre', 'unidad_abreviatura', 'unidad_permite_decimales',
             'activo', 'creado_en', 'actualizado_en',
         )
-        read_only_fields = ('id', 'creado_en', 'actualizado_en')
+        # El stock solo cambia mediante movimientos (ingresos, ajustes, ventas).
+        read_only_fields = ('id', 'stock', 'creado_en', 'actualizado_en')
         extra_kwargs = {
-            'stock': {'min_value': 0},
             'stock_minimo': {'min_value': 0},
         }
 
     def validate(self, attrs):
         unidad = attrs.get('unidad', getattr(self.instance, 'unidad', None))
-        for campo in ('stock', 'stock_minimo'):
+        for campo in ('stock', 'stock_minimo'):  # el stock vigente se revalida al cambiar de unidad
             if campo in attrs:
                 valor = attrs[campo]
             elif self.instance is not None:
