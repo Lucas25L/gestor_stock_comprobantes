@@ -1,10 +1,10 @@
-from django.test import TestCase
 from decimal import Decimal
 
 from django.test import TestCase
 from rest_framework.test import APIClient
 
 from apps.categorias.models import Categoria
+from apps.mediospago.models import MedioPago
 from apps.productos.models import Producto
 from apps.unidades.models import UnidadMedida
 from apps.usuarios.models import Rol, Usuario
@@ -20,6 +20,7 @@ class VentasConCantidadesDecimalesTests(TestCase):
             rol=Rol.objects.get(nombre='Cajero'),
         )
         categoria = Categoria.objects.create(nombre='Panadería')
+        cls.efectivo = MedioPago.objects.get(nombre='Efectivo')
         cls.kilo = UnidadMedida.objects.get(abreviatura='kg')
         cls.unidad = UnidadMedida.objects.get(abreviatura='u')
         cls.pan = Producto.objects.create(
@@ -35,8 +36,11 @@ class VentasConCantidadesDecimalesTests(TestCase):
         self.cliente = APIClient()
         self.cliente.force_authenticate(user=self.cajero)
 
-    def _vender(self, *items):
-        cuerpo = {'items': [{'producto': p.pk, 'cantidad': c} for p, c in items]}
+    def _vender(self, *items, medio_pago=None):
+        cuerpo = {
+            'medio_pago': (medio_pago or self.efectivo).pk,
+            'items': [{'producto': p.pk, 'cantidad': c} for p, c in items],
+        }
         return self.cliente.post('/api/ventas/', cuerpo, format='json')
 
     def test_venta_por_peso_descuenta_el_stock_decimal_y_calcula_el_subtotal(self):
@@ -72,3 +76,26 @@ class VentasConCantidadesDecimalesTests(TestCase):
     def test_rechaza_cantidades_en_cero_o_negativas(self):
         self.assertEqual(self._vender((self.pan, '0')).status_code, 400)
         self.assertEqual(self._vender((self.pan, '-1')).status_code, 400)
+
+    def test_la_venta_registra_el_medio_de_pago(self):
+        tarjeta = MedioPago.objects.get(nombre='Tarjeta de débito')
+        respuesta = self._vender((self.alfajor, '1'), medio_pago=tarjeta)
+        self.assertEqual(respuesta.status_code, 201, respuesta.data)
+        self.assertEqual(respuesta.data['medio_pago'], tarjeta.pk)
+        self.assertEqual(respuesta.data['medio_pago_nombre'], 'Tarjeta de débito')
+        self.assertEqual(Venta.objects.get().medio_pago, tarjeta)
+
+    def test_el_medio_de_pago_es_obligatorio(self):
+        cuerpo = {'items': [{'producto': self.alfajor.pk, 'cantidad': '1'}]}
+        respuesta = self.cliente.post('/api/ventas/', cuerpo, format='json')
+        self.assertEqual(respuesta.status_code, 400)
+        self.assertIn('medio_pago', respuesta.data)
+        self.assertEqual(Venta.objects.count(), 0)
+
+    def test_no_se_puede_vender_con_un_medio_de_pago_desactivado(self):
+        MedioPago.objects.filter(pk=self.efectivo.pk).update(activo=False)
+        respuesta = self._vender((self.alfajor, '1'))
+        self.assertEqual(respuesta.status_code, 400)
+        self.assertIn('medio_pago', respuesta.data)
+        self.alfajor.refresh_from_db()
+        self.assertEqual(self.alfajor.stock, Decimal('10'))

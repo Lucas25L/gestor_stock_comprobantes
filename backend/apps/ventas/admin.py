@@ -12,8 +12,11 @@ class DetalleVentaInline(admin.TabularInline):
 
 @admin.register(Venta)
 class VentaAdmin(admin.ModelAdmin):
-    list_display = ('id', 'usuario', 'fecha', 'total', 'activa')
+    list_display = ('id', 'usuario', 'medio_pago', 'fecha', 'total', 'activa')
     list_filter = ('activa', 'usuario')
     ordering = ('-fecha',)
-    readonly_fields = ('usuario', 'fecha', 'total', 'impuestos_nacionales')
+    readonly_fields = (
+        'usuario', 'medio_pago', 'fecha', 'total', 'impuestos_nacionales',
+        'activa', 'motivo_anulacion', 'anulada_por', 'fecha_anulacion',
+    )
     inlines = (DetalleVentaInline,)

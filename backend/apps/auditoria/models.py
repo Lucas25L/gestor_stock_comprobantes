@@ -29,6 +29,9 @@ class Auditoria(models.Model):
         USUARIO_DESACTIVADO = 'usuario_desactivado', 'Usuario desactivado'
         INGRESO_STOCK = 'ingreso_stock', 'Ingreso de stock'
         AJUSTE_STOCK = 'ajuste_stock', 'Ajuste de stock'
+        VENTA_REGISTRADA = 'venta_registrada', 'Venta registrada'
+        VENTA_ANULADA = 'venta_anulada', 'Venta anulada'
+        COMPROBANTE_EMITIDO = 'comprobante_emitido', 'Comprobante emitido'
 
     usuario = models.ForeignKey(
         settings.AUTH_USER_MODEL,
