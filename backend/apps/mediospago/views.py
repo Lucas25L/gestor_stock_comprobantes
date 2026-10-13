@@ -17,6 +17,9 @@ class MedioPagoViewSet(PermisosPorAccionMixin, viewsets.ModelViewSet):
         'retrieve': (EsAdministrador | EsCajero,),
     }
     serializer_class = MedioPagoSerializer
+    filterset_fields = ('activo',)
+    search_fields = ('nombre', 'descripcion')
+    ordering_fields = ('nombre',)
 
     def get_queryset(self):
         queryset = MedioPago.objects.all()

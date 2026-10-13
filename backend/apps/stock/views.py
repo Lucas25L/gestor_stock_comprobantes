@@ -1,5 +1,4 @@
 from django.db import transaction
-from django.utils.dateparse import parse_date
 from rest_framework import mixins, status, viewsets
 from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
@@ -10,6 +9,7 @@ from apps.auditoria.services import registrar
 from apps.usuarios.permissions import EsAdministrador, EsRepositor
 
 from . import services
+from .filters import MovimientoStockFilter
 from .models import MovimientoStock
 from .serializers import (
     AjusteStockSerializer,
@@ -90,39 +90,6 @@ class MovimientoStockViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = MovimientoStockSerializer
     pagination_class = PaginacionMovimientos
     queryset = MovimientoStock.objects.select_related('producto', 'usuario')
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        params = self.request.query_params
-
-        for parametro, campo in (('producto', 'producto_id'), ('usuario', 'usuario_id')):
-            valor = params.get(parametro)
-            if valor:
-                if not valor.isdigit():
-                    raise ValidationError({parametro: 'Debe ser un número entero.'})
-                queryset = queryset.filter(**{campo: int(valor)})
-
-        tipo = params.get('tipo')
-        if tipo:
-            if tipo not in MovimientoStock.Tipo.values:
-                raise ValidationError(
-                    {'tipo': f'Valores válidos: {", ".join(MovimientoStock.Tipo.values)}.'}
-                )
-            queryset = queryset.filter(tipo=tipo)
-
-        referencia = params.get('referencia')
-        if referencia:
-            queryset = queryset.filter(referencia_origen=referencia)
-
-        for parametro, filtro in (('desde', 'fecha_hora__date__gte'), ('hasta', 'fecha_hora__date__lte')):
-            valor = params.get(parametro)
-            if valor:
-                try:
-                    fecha = parse_date(valor)
-                except ValueError:
-                    fecha = None
-                if fecha is None:
-                    raise ValidationError({parametro: 'Use el formato AAAA-MM-DD.'})
-                queryset = queryset.filter(**{filtro: fecha})
-
-        return queryset
+    filterset_class = MovimientoStockFilter
+    search_fields = ('producto__nombre', 'motivo', 'referencia_origen')
+    ordering_fields = ('fecha_hora', 'cantidad', 'stock_resultante')

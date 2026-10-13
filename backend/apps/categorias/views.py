@@ -17,7 +17,7 @@ class CategoriaViewSet(PermisosPorAccionMixin, viewsets.ModelViewSet):
     serializer_class = CategoriaSerializer
 
     filterset_fields = ('activa',)
-    search_fields = ('nombre',)
+    search_fields = ('nombre', 'descripcion')
     ordering_fields = ('nombre', 'creado_en')
 
     def get_queryset(self): # filtrado de inactivas

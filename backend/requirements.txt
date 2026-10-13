@@ -19,5 +19,8 @@ python-decouple>=3.8
 # Generación de documentación OpenAPI para la API.
 drf-spectacular>=0.27
 
+# Filtros declarativos para los endpoints de la API (?campo=valor).
+django-filter>=25.1
+
 
 # pip install -r requirements.txt

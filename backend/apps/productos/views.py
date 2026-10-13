@@ -3,6 +3,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from .filters import ProductoFilter
 from .models import Producto
 from .serializers import ProductoSerializer
 
@@ -15,9 +16,9 @@ class ProductoViewSet(PermisosPorAccionMixin, viewsets.ModelViewSet):
         'retrieve': (CualquierRol,),
     }
     serializer_class = ProductoSerializer
-    filterset_fields = ('categoria', 'activo')
-    search_fields = ('nombre', 'codigo_barras')
-    ordering_fields = ('nombre', 'precio', 'stock', 'creado_en')
+    filterset_class = ProductoFilter
+    search_fields = ('nombre', 'descripcion', 'codigo_barras', 'categoria__nombre')
+    ordering_fields = ('nombre', 'precio', 'stock', 'stock_minimo', 'creado_en', 'actualizado_en')
 
     def get_queryset(self):
         queryset = Producto.objects.select_related('categoria').all()

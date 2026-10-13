@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from apps.usuarios.permissions import EsAdministrador, EsCajero
 
 from . import services
+from .filters import ComprobanteFilter
 from .models import Comprobante
 from .serializers import ComprobanteSerializer
 
@@ -15,16 +16,9 @@ class ComprobanteViewSet(viewsets.ModelViewSet):
     # Un comprobante no se modifica ni se borra: solo se emite y se consulta.
     http_method_names = ('get', 'post', 'head', 'options')
     serializer_class = ComprobanteSerializer
+    queryset = Comprobante.objects.select_related('venta')
+    filterset_class = ComprobanteFilter
     ordering_fields = ('fecha_emision', 'numero')
-
-    def get_queryset(self):
-        queryset = Comprobante.objects.select_related('venta')
-        venta = self.request.query_params.get('venta')
-        if venta:
-            if not venta.isdigit():
-                raise ValidationError({'venta': 'Debe ser un número entero.'})
-            queryset = queryset.filter(venta_id=int(venta))
-        return queryset
 
     @extend_schema(
         summary='Emitir un comprobante',

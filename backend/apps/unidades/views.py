@@ -15,6 +15,9 @@ from .serializers import UnidadMedidaSerializer
 class UnidadMedidaViewSet(PermisosPorAccionMixin, viewsets.ModelViewSet):
     permisos_por_accion = {'list': (CualquierRol,), 'retrieve': (CualquierRol,)}
     serializer_class = UnidadMedidaSerializer
+    filterset_fields = ('permite_decimales', 'activo')
+    search_fields = ('nombre', 'abreviatura')
+    ordering_fields = ('nombre', 'abreviatura')
 
     def get_queryset(self):
         queryset = UnidadMedida.objects.all()

@@ -9,6 +9,7 @@ from apps.stock.services import StockError
 from apps.usuarios.permissions import EsAdministrador, EsCajero
 
 from . import services
+from .filters import VentaFilter
 from .models import Venta
 from .serializers import AnularVentaSerializer, VentaSerializer
 
@@ -18,8 +19,10 @@ class VentaViewSet(viewsets.ModelViewSet):
     # Las ventas no se borran: se anulan con POST /api/ventas/{id}/anular/.
     http_method_names = ('get', 'post', 'head', 'options')
     serializer_class = VentaSerializer
-    filterset_fields = ('usuario', 'activa')
-    ordering_fields = ('fecha', 'total')
+    filterset_class = VentaFilter
+    # Buscar por producto vendido o por motivo de anulación.
+    search_fields = ('detalles__producto__nombre', 'motivo_anulacion')
+    ordering_fields = ('fecha', 'total', 'id')
 
     def get_queryset(self):
         queryset = (

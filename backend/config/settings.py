@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'corsheaders', # permite configurar solicitudesentre distintos orígenes
     'rest_framework_simplejwt.token_blacklist', # Carga en una lista los tokens que han caducado
     'drf_spectacular', # para generar documentación de la API en formato OpenAPI/Swagger
+    'django_filters', # filtros declarativos por parámetros de URL (?campo=valor)
 
     # Apps propias
     'apps.usuarios',
@@ -90,6 +91,12 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated', # Por defecto, todos los endpoints de mi API requieren un usuario autenticado.
     ),
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    # Filtros globales: por campo (?estado=...), búsqueda (?search=...) y orden (?ordering=...).
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
+    ),
 }
 
 AUTH_USER_MODEL = 'usuarios.Usuario'
