@@ -1,3 +1,4 @@
+from django.db.models import F
 from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -14,6 +15,7 @@ class ProductoViewSet(PermisosPorAccionMixin, viewsets.ModelViewSet):
     permisos_por_accion = {
         'list': (CualquierRol,),
         'retrieve': (CualquierRol,),
+        'stock_bajo': (CualquierRol,),
     }
     serializer_class = ProductoSerializer
     filterset_class = ProductoFilter
@@ -29,6 +31,27 @@ class ProductoViewSet(PermisosPorAccionMixin, viewsets.ModelViewSet):
     def perform_destroy(self, instance):
         instance.activo = False
         instance.save()
+
+    @extend_schema(
+        summary='Productos con stock bajo',
+        description=(
+            'Lista de reposición: productos activos con stock menor o igual al stock mínimo, '
+            'ordenados de mayor a menor faltante. Acepta los mismos filtros, búsqueda y '
+            'ordenamiento que el listado de productos.'
+        ),
+        responses=ProductoSerializer(many=True),
+    )
+    @action(detail=False, methods=('get',), url_path='stock-bajo')
+    def stock_bajo(self, request):
+        base = (
+            self.get_queryset()
+            .filter(activo=True, stock__lte=F('stock_minimo'))
+            .annotate(faltante_calculado=F('stock_minimo') - F('stock'))
+            .order_by('-faltante_calculado', 'nombre')
+        )
+        # Si el pedido trae ?ordering=..., ese orden reemplaza al de criticidad.
+        queryset = self.filter_queryset(base)
+        return Response(self.get_serializer(queryset, many=True).data)
 
     @extend_schema(
         summary='Reactivar producto',
