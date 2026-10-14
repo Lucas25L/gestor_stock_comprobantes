@@ -1,5 +1,6 @@
 from decimal import Decimal
 
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from apps.unidades.models import UnidadMedida
@@ -33,9 +34,11 @@ class ProductoSerializer(serializers.ModelSerializer):
             'stock_minimo': {'min_value': 0},
         }
 
+    @extend_schema_field(serializers.BooleanField())
     def get_stock_bajo(self, producto):
         return producto.activo and producto.stock <= producto.stock_minimo
 
+    @extend_schema_field(serializers.CharField())
     def get_faltante(self, producto):
         # Cantidad que falta para llegar al mínimo; texto con 3 decimales como el resto del stock.
         faltante = max(producto.stock_minimo - producto.stock, Decimal('0'))
