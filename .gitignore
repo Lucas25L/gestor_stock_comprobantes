@@ -23,3 +23,7 @@ Thumbs.db
 
 # Logs generales
 *.log
+# Datos personales de terceros y material de trabajo fuera del repositorio
+/assets/
+/backend/experimentos/
+/backend/media/
