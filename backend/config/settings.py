@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'apps.ventas',
     'apps.comprobantes',
     'apps.auditoria',
+    'apps.indicadores',
 ]
 
 MIDDLEWARE = [

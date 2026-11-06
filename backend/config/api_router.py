@@ -2,6 +2,7 @@ from rest_framework.routers import DefaultRouter
 
 from apps.categorias.views import CategoriaViewSet
 from apps.comprobantes.views import ComprobanteViewSet
+from apps.indicadores.views import IndicadoresViewSet
 from apps.mediospago.views import MedioPagoViewSet
 from apps.productos.views import ProductoViewSet
 from apps.auditoria.views import AuditoriaViewSet
@@ -23,5 +24,6 @@ router.register('stock/movimientos', MovimientoStockViewSet, basename='stock-mov
 router.register('roles', RolViewSet, basename='rol')
 router.register('ventas', VentaViewSet, basename='venta')
 router.register('comprobantes', ComprobanteViewSet, basename='comprobante')
+router.register('indicadores', IndicadoresViewSet, basename='indicador')
 
 urlpatterns = router.urls
