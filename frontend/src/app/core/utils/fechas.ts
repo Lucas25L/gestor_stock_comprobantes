@@ -54,3 +54,21 @@ export function formatearFechaHora(iso: string): string {
     }
     return `${partes['day']}/${partes['month']}/${partes['year']} ${partes['hour']}:${partes['minute']}`;
 }
+
+/**
+ * AAAA-MM-DD → Date a medianoche local, o null si no es una fecha real.
+ * No usa new Date("AAAA-MM-DD"), que interpreta el texto como UTC y corre el día.
+ */
+export function fechaDesdeISO(texto: string): Date | null {
+    const coincidencia = /^(\d{4})-(\d{2})-(\d{2})$/.exec(texto);
+    if (!coincidencia) {
+        return null;
+    }
+    const anio = Number(coincidencia[1]);
+    const mes = Number(coincidencia[2]);
+    const dia = Number(coincidencia[3]);
+    const fecha = new Date(anio, mes - 1, dia);
+    const existe =
+        fecha.getFullYear() === anio && fecha.getMonth() === mes - 1 && fecha.getDate() === dia;
+    return existe ? fecha : null;
+}
