@@ -9,6 +9,7 @@ import { providePrimeNG } from 'primeng/config';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 
 import Aura from '@primeng/themes/aura';
+import { TRADUCCION_ES } from './core/i18n/primeng-es';
 
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
@@ -32,6 +33,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
 
     providePrimeNG({
+      translation: TRADUCCION_ES,
       theme: {
         preset: Aura
       }
