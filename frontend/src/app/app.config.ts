@@ -35,7 +35,12 @@ export const appConfig: ApplicationConfig = {
     providePrimeNG({
       translation: TRADUCCION_ES,
       theme: {
-        preset: Aura
+        preset: Aura,
+        options: {
+          // La aplicación usa colores claros: sin esto, PrimeNG se pasa al modo oscuro
+          // cuando el sistema operativo está en modo oscuro y se mezclan los estilos.
+          darkModeSelector: false,
+        },
       }
     })
   ]

@@ -1,3 +1,8 @@
+:root {
+    /* Los controles nativos (casillas, barras de desplazamiento) también se ven claros. */
+    color-scheme: light;
+}
+
 body {
     margin: 0;
     font-family: var(
