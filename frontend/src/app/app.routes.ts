@@ -6,7 +6,7 @@ import { rolGuard } from './core/guards/rol.guard';
 import { AppLayoutComponent } from './layouts/app-layout.component';
 import { LoginComponent } from './features/auth/login.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
-import { ListaProductosComponent } from './features/productos/lista-productos.component';
+import { ProductosComponent } from './features/productos/productos.component';
 import { NuevaVentaComponent } from './features/ventas/nueva-venta.component';
 import { HistorialVentasComponent } from './features/ventas/historial-ventas.component';
 import { VisorComprobanteComponent } from './features/comprobantes/visor-comprobante.component';
@@ -24,7 +24,7 @@ export const routes: Routes = [
         canActivate: [authGuard],
         children: [
             { path: 'dashboard', component: DashboardComponent, canActivate: [rolGuard], data: { roles: ACCESO.inicio } },
-            { path: 'productos', component: ListaProductosComponent, canActivate: [rolGuard], data: { roles: ACCESO.productos } },
+            { path: 'productos', component: ProductosComponent, canActivate: [rolGuard], data: { roles: ACCESO.productos } },
             // /ventas lleva a Nueva venta, que es la acción principal de quien vende.
             { path: 'ventas', redirectTo: 'ventas/nueva', pathMatch: 'full' },
             { path: 'ventas/nueva', component: NuevaVentaComponent, canActivate: [rolGuard], data: { roles: ACCESO.ventas } },

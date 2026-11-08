@@ -1,0 +1,144 @@
+:host {
+    display: block;
+}
+
+.pantalla {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.encabezado {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.encabezado h1 {
+    margin: 0 0 0.25rem;
+    font-size: 1.5rem;
+}
+
+.ayuda {
+    margin: 0 0 0.75rem;
+    color: #64748b;
+    font-size: 0.875rem;
+}
+
+.alerta,
+.stock-bajo {
+    color: #b45309;
+}
+
+.panel {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.campos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.campo label {
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.campo-ancho {
+    grid-column: span 2;
+}
+
+.opciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.check {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.acciones-dialogo {
+    justify-content: flex-end;
+    margin-top: 1rem;
+}
+
+.acciones-fila {
+    white-space: nowrap;
+}
+
+.num {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.nombre {
+    font-weight: 600;
+}
+
+tr.inactivo td {
+    color: #94a3b8;
+}
+
+.vacio {
+    padding: 1.5rem;
+    text-align: center;
+    color: #64748b;
+}
+
+.formulario {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.campo-completo {
+    grid-column: 1 / -1;
+}
+
+.invalida {
+    border-color: #dc2626;
+}
+
+.error {
+    color: #dc2626;
+}
+
+p-select {
+    display: block;
+    width: 100%;
+}
+
+@media (max-width: 640px) {
+    .formulario {
+        grid-template-columns: 1fr;
+    }
+
+    .campo-ancho {
+        grid-column: span 1;
+    }
+}

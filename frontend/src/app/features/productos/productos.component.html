@@ -1,0 +1,375 @@
+<div class="pantalla">
+    <header class="encabezado">
+        <div>
+            <h1>Productos</h1>
+            <p class="ayuda">
+                {{ store.productos().length }} productos
+                @if (store.cantidadStockBajo() > 0) {
+                    · <strong class="alerta">{{ store.cantidadStockBajo() }} con stock bajo</strong>
+                }
+            </p>
+        </div>
+        @if (esAdministrador()) {
+            <button pButton type="button" label="Nuevo producto" icon="pi pi-plus" (click)="abrirAlta()"></button>
+        }
+    </header>
+
+    @if (!esAdministrador()) {
+        <p class="ayuda">Podés consultar los productos. Solo el Administrador puede crearlos o modificarlos.</p>
+    }
+
+    @if (store.aviso()) {
+        <p-message severity="warn" [text]="store.aviso() ?? ''" />
+        <button pButton type="button" label="Entendido" size="small" severity="secondary" [text]="true" (click)="store.descartarAviso()"></button>
+    }
+    @if (store.errorCarga()) {
+        <p-message severity="error" [text]="store.errorCarga() ?? ''" />
+    }
+    @if (store.errorCatalogos()) {
+        <p-message severity="error" [text]="store.errorCatalogos() ?? ''" />
+    }
+    @if (store.errorOperacion()) {
+        <p-message severity="error" [text]="store.errorOperacion() ?? ''" />
+    }
+
+    <section class="panel filtros">
+        <div class="campos">
+            <div class="campo campo-ancho">
+                <label for="filtro-texto">Buscar</label>
+                <input
+                    pInputText
+                    id="filtro-texto"
+                    type="text"
+                    autocomplete="off"
+                    placeholder="Nombre, descripción, código de barras o categoría"
+                    [ngModel]="store.filtros().texto"
+                    (ngModelChange)="store.actualizarFiltros({ texto: $event })"
+                    (keydown.enter)="store.buscar()" />
+            </div>
+            <div class="campo">
+                <label>Categoría</label>
+                <p-select
+                    class="w-full"
+                    [options]="opcionesCategoriaFiltro()"
+                    optionLabel="nombre"
+                    optionValue="id"
+                    placeholder="Todas"
+                    [ngModel]="store.filtros().categoria"
+                    (ngModelChange)="filtrar({ categoria: $event })" />
+            </div>
+            <div class="campo">
+                <label>Unidad</label>
+                <p-select
+                    class="w-full"
+                    [options]="opcionesUnidadFiltro()"
+                    optionLabel="nombre"
+                    optionValue="id"
+                    placeholder="Todas"
+                    [ngModel]="store.filtros().unidad"
+                    (ngModelChange)="filtrar({ unidad: $event })" />
+            </div>
+        </div>
+
+        <div class="opciones">
+            <label class="check">
+                <input
+                    type="checkbox"
+                    [checked]="store.filtros().soloStockBajo"
+                    (change)="filtrar({ soloStockBajo: $any($event.target).checked })" />
+                Solo con stock bajo
+            </label>
+            <label class="check">
+                <input
+                    type="checkbox"
+                    [checked]="store.filtros().incluirInactivos"
+                    (change)="filtrar({ incluirInactivos: $any($event.target).checked })" />
+                Incluir desactivados
+            </label>
+        </div>
+
+        <div class="acciones">
+            <button pButton type="button" label="Buscar" icon="pi pi-search" [loading]="store.cargando()" (click)="store.buscar()"></button>
+            <button pButton type="button" label="Limpiar filtros" icon="pi pi-filter-slash" severity="secondary" [text]="true" (click)="store.limpiarFiltros()"></button>
+        </div>
+    </section>
+
+    <section class="panel">
+        <p-table
+            [value]="store.productos()"
+            dataKey="id"
+            [loading]="store.cargando()"
+            [paginator]="store.productos().length > 15"
+            [rows]="15"
+            [stripedRows]="true"
+            size="small">
+            <ng-template #header>
+                <tr>
+                    <th>Producto</th>
+                    <th>Categoría</th>
+                    <th class="num">Precio</th>
+                    <th class="num">Stock</th>
+                    <th class="num">Mínimo</th>
+                    <th>Estado</th>
+                    @if (esAdministrador()) {
+                        <th></th>
+                    }
+                </tr>
+            </ng-template>
+
+            <ng-template #body let-producto>
+                <tr [class.inactivo]="!producto.activo">
+                    <td>
+                        <div class="nombre">{{ producto.nombre }}</div>
+                        @if (producto.codigo_barras) {
+                            <small class="ayuda">{{ producto.codigo_barras }}</small>
+                        }
+                    </td>
+                    <td>{{ producto.categoria_nombre }}</td>
+                    <td class="num">
+                        {{ formatearDinero(producto.precio) }}
+                        <small class="ayuda">/ {{ producto.unidad_abreviatura }}</small>
+                    </td>
+                    <td class="num">
+                        <span [class.stock-bajo]="producto.stock_bajo">
+                            {{ formatearCantidad(producto.stock) }} {{ producto.unidad_abreviatura }}
+                        </span>
+                        @if (producto.stock_bajo) {
+                            <p-tag severity="warn" value="Stock bajo" />
+                        }
+                    </td>
+                    <td class="num">{{ formatearCantidad(producto.stock_minimo) }} {{ producto.unidad_abreviatura }}</td>
+                    <td>
+                        @if (producto.activo) {
+                            <p-tag severity="success" value="Activo" />
+                        } @else {
+                            <p-tag severity="secondary" value="Desactivado" />
+                        }
+                    </td>
+                    @if (esAdministrador()) {
+                        <td class="num acciones-fila">
+                            <button
+                                pButton
+                                type="button"
+                                label="Editar"
+                                icon="pi pi-pencil"
+                                size="small"
+                                severity="secondary"
+                                [text]="true"
+                                (click)="abrirEdicion(producto)"></button>
+                            @if (producto.activo) {
+                                <button
+                                    pButton
+                                    type="button"
+                                    label="Desactivar"
+                                    icon="pi pi-ban"
+                                    size="small"
+                                    severity="danger"
+                                    [text]="true"
+                                    [disabled]="store.cambiandoEstado() !== null"
+                                    (click)="pedirDesactivar(producto)"></button>
+                            } @else {
+                                <button
+                                    pButton
+                                    type="button"
+                                    label="Reactivar"
+                                    icon="pi pi-replay"
+                                    size="small"
+                                    [text]="true"
+                                    [loading]="store.cambiandoEstado() === producto.id"
+                                    [disabled]="store.cambiandoEstado() !== null"
+                                    (click)="store.reactivar(producto)"></button>
+                            }
+                        </td>
+                    }
+                </tr>
+            </ng-template>
+
+            <ng-template #emptymessage>
+                <tr>
+                    <td [attr.colspan]="esAdministrador() ? 7 : 6" class="vacio">
+                        No hay productos para los filtros elegidos.
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </section>
+</div>
+
+<p-dialog
+    [visible]="formularioAbierto()"
+    (onHide)="cerrarFormulario()"
+    [modal]="true"
+    [draggable]="false"
+    [closable]="!store.guardando()"
+    [closeOnEscape]="!store.guardando()"
+    [style]="{ width: '38rem' }"
+    [breakpoints]="{ '640px': '95vw' }"
+    [header]="editando() ? 'Editar producto' : 'Nuevo producto'">
+    <div class="formulario">
+        <div class="campo campo-completo">
+            <label for="f-nombre">Nombre</label>
+            <input
+                pInputText
+                id="f-nombre"
+                type="text"
+                maxlength="150"
+                autocomplete="off"
+                [class.invalida]="store.erroresCampos().nombre"
+                [ngModel]="formulario().nombre"
+                (ngModelChange)="cambiar('nombre', $event)" />
+            @if (store.erroresCampos().nombre; as error) {
+                <small class="error">{{ error }}</small>
+            }
+        </div>
+
+        <div class="campo campo-completo">
+            <label for="f-descripcion">Descripción (opcional)</label>
+            <input
+                pInputText
+                id="f-descripcion"
+                type="text"
+                maxlength="255"
+                autocomplete="off"
+                [class.invalida]="store.erroresCampos().descripcion"
+                [ngModel]="formulario().descripcion"
+                (ngModelChange)="cambiar('descripcion', $event)" />
+            @if (store.erroresCampos().descripcion; as error) {
+                <small class="error">{{ error }}</small>
+            }
+        </div>
+
+        <div class="campo">
+            <label>Categoría</label>
+            <p-select
+                class="w-full"
+                [options]="opcionesCategoriaForm()"
+                optionLabel="nombre"
+                optionValue="id"
+                placeholder="Elegí una categoría"
+                [ngModel]="formulario().categoria"
+                (ngModelChange)="cambiar('categoria', $event)" />
+            @if (store.erroresCampos().categoria; as error) {
+                <small class="error">{{ error }}</small>
+            }
+        </div>
+
+        <div class="campo">
+            <label>Unidad de medida</label>
+            <p-select
+                class="w-full"
+                [options]="opcionesUnidadForm()"
+                optionLabel="nombre"
+                optionValue="id"
+                placeholder="Elegí una unidad"
+                [ngModel]="formulario().unidad"
+                (ngModelChange)="cambiar('unidad', $event)" />
+            @if (store.erroresCampos().unidad; as error) {
+                <small class="error">{{ error }}</small>
+            }
+        </div>
+
+        <div class="campo">
+            <label for="f-precio">Precio{{ abreviaturaForm() ? ' por ' + abreviaturaForm() : '' }}</label>
+            <input
+                pInputText
+                id="f-precio"
+                type="text"
+                inputmode="decimal"
+                autocomplete="off"
+                placeholder="0,00"
+                [class.invalida]="store.erroresCampos().precio"
+                [ngModel]="formulario().precio"
+                (ngModelChange)="cambiar('precio', $event)" />
+            @if (store.erroresCampos().precio; as error) {
+                <small class="error">{{ error }}</small>
+            }
+        </div>
+
+        <div class="campo">
+            <label for="f-minimo">Stock mínimo{{ abreviaturaForm() ? ' (' + abreviaturaForm() + ')' : '' }}</label>
+            <input
+                pInputText
+                id="f-minimo"
+                type="text"
+                inputmode="decimal"
+                autocomplete="off"
+                placeholder="0"
+                [class.invalida]="store.erroresCampos().stockMinimo"
+                [ngModel]="formulario().stockMinimo"
+                (ngModelChange)="cambiar('stockMinimo', $event)" />
+            @if (store.erroresCampos().stockMinimo; as error) {
+                <small class="error">{{ error }}</small>
+            }
+        </div>
+
+        <div class="campo campo-completo">
+            <label for="f-codigo">Código de barras (opcional)</label>
+            <input
+                pInputText
+                id="f-codigo"
+                type="text"
+                maxlength="50"
+                autocomplete="off"
+                [class.invalida]="store.erroresCampos().codigoBarras"
+                [ngModel]="formulario().codigoBarras"
+                (ngModelChange)="cambiar('codigoBarras', $event)" />
+            @if (store.erroresCampos().codigoBarras; as error) {
+                <small class="error">{{ error }}</small>
+            }
+        </div>
+
+        @if (!editando()) {
+            <div class="campo campo-completo">
+                <label for="f-inicial">Stock inicial (opcional){{ abreviaturaForm() ? ' (' + abreviaturaForm() + ')' : '' }}</label>
+                <input
+                    pInputText
+                    id="f-inicial"
+                    type="text"
+                    inputmode="decimal"
+                    autocomplete="off"
+                    placeholder="Dejalo vacío para cargarlo después desde Stock"
+                    [class.invalida]="store.erroresCampos().stockInicial"
+                    [ngModel]="formulario().stockInicial"
+                    (ngModelChange)="cambiar('stockInicial', $event)" />
+                @if (store.erroresCampos().stockInicial; as error) {
+                    <small class="error">{{ error }}</small>
+                }
+            </div>
+        } @else {
+            <p class="ayuda campo-completo">
+                El stock no se edita desde acá: cambia con los ingresos y ajustes de la pantalla Stock.
+            </p>
+        }
+    </div>
+
+    @if (store.errorFormulario()) {
+        <p-message severity="error" [text]="store.errorFormulario() ?? ''" />
+    }
+
+    <div class="acciones acciones-dialogo">
+        <button pButton type="button" label="Cancelar" severity="secondary" [text]="true" [disabled]="store.guardando()" (click)="cerrarFormulario()"></button>
+        <button pButton type="button" label="Guardar" icon="pi pi-check" [loading]="store.guardando()" (click)="guardar()"></button>
+    </div>
+</p-dialog>
+
+<p-dialog
+    [visible]="aDesactivar() !== null"
+    (onHide)="cancelarDesactivar()"
+    [modal]="true"
+    [draggable]="false"
+    [style]="{ width: '28rem' }"
+    [breakpoints]="{ '640px': '95vw' }"
+    header="Desactivar producto">
+    @if (aDesactivar(); as producto) {
+        <p>
+            ¿Desactivar <strong>{{ producto.nombre }}</strong>?
+        </p>
+        <p class="ayuda">
+            Deja de mostrarse en el listado. Sus ventas y movimientos anteriores se conservan, y podés reactivarlo cuando quieras.
+        </p>
+        <div class="acciones acciones-dialogo">
+            <button pButton type="button" label="Cancelar" severity="secondary" [text]="true" (click)="cancelarDesactivar()"></button>
+            <button pButton type="button" label="Desactivar" icon="pi pi-ban" severity="danger" (click)="confirmarDesactivar()"></button>
+        </div>
+    }
+</p-dialog>
