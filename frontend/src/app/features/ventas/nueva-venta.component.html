@@ -1,0 +1,189 @@
+<div class="pantalla">
+    <header class="encabezado">
+        <h1>Nueva venta</h1>
+        <p class="ayuda">Buscá por nombre o escaneá el código de barras.</p>
+    </header>
+
+    @if (store.ventaRegistrada()) {
+        @let venta = store.ventaRegistrada()!;
+        <section class="panel exito">
+            <i class="pi pi-check-circle icono-exito"></i>
+            <h2>Venta N° {{ venta.id }} registrada</h2>
+            <p class="total-grande">{{ formatearDinero(venta.total) }}</p>
+            <p class="ayuda">Medio de pago: {{ venta.medio_pago_nombre }}</p>
+
+            @if (store.comprobante(); as comprobante) {
+                <p-tag
+                    severity="success"
+                    icon="pi pi-file"
+                    [value]="'Comprobante N° ' + comprobante.numero_formateado" />
+            } @else {
+                @if (store.errorComprobante()) {
+                    <p-message severity="error" [text]="store.errorComprobante() ?? ''" />
+                }
+                <button
+                    pButton
+                    type="button"
+                    label="Emitir comprobante"
+                    icon="pi pi-file"
+                    [loading]="store.emitiendo()"
+                    (click)="store.emitirComprobante()"></button>
+            }
+
+            <button
+                pButton
+                type="button"
+                label="Nueva venta"
+                icon="pi pi-plus"
+                severity="secondary"
+                (click)="nuevaVenta()"></button>
+        </section>
+    } @else if (store.errorCarga()) {
+        <section class="panel">
+            <p-message severity="error" [text]="store.errorCarga() ?? ''" />
+            <div class="acciones">
+                <button pButton type="button" label="Reintentar" icon="pi pi-refresh" (click)="store.cargar()"></button>
+            </div>
+        </section>
+    } @else {
+        <div class="grid">
+            <div class="col-12 lg:col-8">
+                <section class="panel">
+                    <label class="etiqueta">Producto</label>
+                    <p-autocomplete
+                        [(ngModel)]="busqueda"
+                        [suggestions]="sugerencias()"
+                        (completeMethod)="buscar($event)"
+                        (onSelect)="alSeleccionar($event)"
+                        (keydown.enter)="alEnter()"
+                        optionLabel="nombre"
+                        [minLength]="1"
+                        [delay]="150"
+                        [autofocus]="true"
+                        [showClear]="true"
+                        [showEmptyMessage]="true"
+                        emptyMessage="Sin resultados"
+                        placeholder="Nombre o código de barras">
+                        <ng-template #item let-producto>
+                            <div class="sugerencia">
+                                <span class="sugerencia-nombre">{{ producto.nombre }}</span>
+                                <span class="sugerencia-detalle">
+                                    {{ formatearDinero(producto.precio) }} / {{ producto.unidad_abreviatura }}
+                                    · Stock: {{ formatearCantidad(producto.stock) }}
+                                </span>
+                            </div>
+                        </ng-template>
+                    </p-autocomplete>
+
+                    @if (store.cargando()) {
+                        <p class="ayuda"><i class="pi pi-spin pi-spinner"></i> Cargando productos…</p>
+                    }
+                    @if (avisoBusqueda()) {
+                        <p-message severity="warn" [text]="avisoBusqueda() ?? ''" />
+                    }
+
+                    <p-table [value]="carrito.lineas()" styleClass="tabla-carrito">
+                        <ng-template #header>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Precio</th>
+                                <th>Cantidad</th>
+                                <th class="num">Subtotal</th>
+                                <th></th>
+                            </tr>
+                        </ng-template>
+                        <ng-template #body let-linea>
+                            <tr>
+                                <td>
+                                    <div class="producto">{{ linea.producto.nombre }}</div>
+                                    <small class="stock" [class.excedido]="linea.excedeStock">
+                                        Stock: {{ formatearCantidad(linea.producto.stock) }}
+                                        {{ linea.producto.unidad_abreviatura }}
+                                    </small>
+                                </td>
+                                <td>
+                                    {{ formatearDinero(linea.producto.precio) }}
+                                    <small>/ {{ linea.producto.unidad_abreviatura }}</small>
+                                </td>
+                                <td>
+                                    <div class="cantidad">
+                                        <input
+                                            #c
+                                            pInputText
+                                            type="text"
+                                            inputmode="decimal"
+                                            autocomplete="off"
+                                            [attr.aria-label]="'Cantidad de ' + linea.producto.nombre"
+                                            [class.invalida]="erroresCantidad()[linea.producto.id]"
+                                            [value]="cantidadVisible(linea.cantidad)"
+                                            (change)="cambiarCantidad(linea.producto.id, c.value)" />
+                                        <span>{{ linea.producto.unidad_abreviatura }}</span>
+                                    </div>
+                                    @if (erroresCantidad()[linea.producto.id]; as error) {
+                                        <small class="error">
+                                            {{ error }} Se mantiene {{ cantidadVisible(linea.cantidad) }}.
+                                        </small>
+                                    }
+                                    @if (linea.excedeStock) {
+                                        <small class="error">Supera el stock disponible.</small>
+                                    }
+                                </td>
+                                <td class="num">{{ formatearDinero(linea.subtotal) }}</td>
+                                <td>
+                                    <button
+                                        pButton
+                                        type="button"
+                                        icon="pi pi-trash"
+                                        severity="danger"
+                                        [text]="true"
+                                        [attr.aria-label]="'Quitar ' + linea.producto.nombre"
+                                        (click)="quitar(linea.producto.id)"></button>
+                                </td>
+                            </tr>
+                        </ng-template>
+                        <ng-template #emptymessage>
+                            <tr>
+                                <td colspan="5" class="vacio">Todavía no agregaste productos.</td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </section>
+            </div>
+
+            <div class="col-12 lg:col-4">
+                <section class="panel">
+                    <span class="etiqueta">Total estimado</span>
+                    <p class="total-grande">{{ formatearDinero(carrito.total()) }}</p>
+                    <p class="ayuda">El total definitivo lo calcula el sistema al confirmar, con el precio vigente.</p>
+
+                    <label class="etiqueta">Medio de pago</label>
+                    <p-select
+                        class="w-full"
+                        [options]="store.mediosPago()"
+                        optionLabel="nombre"
+                        optionValue="id"
+                        placeholder="Elegí el medio de pago"
+                        [ngModel]="store.medioPagoId()"
+                        (ngModelChange)="store.seleccionarMedioPago($event)" />
+
+                    @if (store.errorVenta()) {
+                        <p-message severity="error" [text]="store.errorVenta() ?? ''" />
+                    }
+
+                    <button
+                        pButton
+                        type="button"
+                        class="confirmar"
+                        label="Confirmar venta"
+                        icon="pi pi-check"
+                        [loading]="store.confirmando()"
+                        [disabled]="!store.puedeConfirmar()"
+                        (click)="store.confirmar()"></button>
+                    @if (pista()) {
+                        <small class="ayuda">{{ pista() }}</small>
+                    }
+                </section>
+            </div>
+        </div>
+    }
+</div>

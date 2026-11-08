@@ -1,0 +1,138 @@
+:host {
+    display: block;
+}
+
+.pantalla {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.encabezado h1 {
+    margin: 0 0 0.25rem;
+    font-size: 1.5rem;
+}
+
+.ayuda {
+    margin: 0 0 1rem;
+    color: #64748b;
+    font-size: 0.875rem;
+}
+
+.panel {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1.25rem;
+}
+
+.etiqueta {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+p-autocomplete,
+p-select {
+    display: block;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+:host ::ng-deep p-autocomplete .p-autocomplete,
+:host ::ng-deep p-autocomplete .p-autocomplete-input {
+    width: 100%;
+}
+
+.sugerencia {
+    display: flex;
+    flex-direction: column;
+}
+
+.sugerencia-nombre {
+    font-weight: 600;
+}
+
+.sugerencia-detalle {
+    color: #64748b;
+    font-size: 0.8rem;
+}
+
+.num {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.producto {
+    font-weight: 600;
+}
+
+.stock {
+    color: #64748b;
+}
+
+.stock.excedido,
+.error {
+    color: #dc2626;
+}
+
+.error {
+    display: block;
+    margin-top: 0.25rem;
+}
+
+.cantidad {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.cantidad input {
+    width: 6.5rem;
+    text-align: right;
+}
+
+.cantidad input.invalida {
+    border-color: #dc2626;
+}
+
+.vacio {
+    padding: 1.5rem;
+    text-align: center;
+    color: #64748b;
+}
+
+.total-grande {
+    margin: 0 0 0.5rem;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.confirmar {
+    width: 100%;
+    margin: 1rem 0 0.5rem;
+}
+
+.exito {
+    max-width: 32rem;
+    margin: 2rem auto;
+    text-align: center;
+}
+
+.exito h2 {
+    margin: 0.5rem 0;
+}
+
+.exito button,
+.exito p-tag {
+    display: block;
+    margin: 0.75rem auto 0;
+}
+
+.icono-exito {
+    font-size: 3rem;
+    color: #16a34a;
+}
+
+.acciones {
+    margin-top: 1rem;
+}

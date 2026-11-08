@@ -7,7 +7,7 @@ import { AppLayoutComponent } from './layouts/app-layout.component';
 import { LoginComponent } from './features/auth/login.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { ListaProductosComponent } from './features/productos/lista-productos.component';
-import { CarritoVentaComponent } from './features/ventas/carrito-venta.component';
+import { NuevaVentaComponent } from './features/ventas/nueva-venta.component';
 import { VisorComprobanteComponent } from './features/comprobantes/visor-comprobante.component';
 
 export const routes: Routes = [
@@ -24,7 +24,9 @@ export const routes: Routes = [
         children: [
             { path: 'dashboard', component: DashboardComponent, canActivate: [rolGuard], data: { roles: ACCESO.inicio } },
             { path: 'productos', component: ListaProductosComponent, canActivate: [rolGuard], data: { roles: ACCESO.productos } },
-            { path: 'ventas', component: CarritoVentaComponent, canActivate: [rolGuard], data: { roles: ACCESO.ventas } },
+            // Por ahora /ventas lleva a Nueva venta; cuando exista el historial, pasa a ser el historial.
+            { path: 'ventas', redirectTo: 'ventas/nueva', pathMatch: 'full' },
+            { path: 'ventas/nueva', component: NuevaVentaComponent, canActivate: [rolGuard], data: { roles: ACCESO.ventas } },
             { path: 'comprobantes', component: VisorComprobanteComponent, canActivate: [rolGuard], data: { roles: ACCESO.comprobantes } },
         ],
     },
