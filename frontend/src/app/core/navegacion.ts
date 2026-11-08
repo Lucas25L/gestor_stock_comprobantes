@@ -20,7 +20,8 @@ export const ACCESO = {
 
 export const MENU: readonly ItemMenu[] = [
     { etiqueta: 'Inicio', ruta: '/dashboard', icono: 'pi-home', roles: ACCESO.inicio },
-    { etiqueta: 'Ventas', ruta: '/ventas', icono: 'pi-shopping-cart', roles: ACCESO.ventas },
+    { etiqueta: 'Nueva venta', ruta: '/ventas/nueva', icono: 'pi-shopping-cart', roles: ACCESO.ventas },
+    { etiqueta: 'Historial de ventas', ruta: '/ventas/historial', icono: 'pi-history', roles: ACCESO.ventas },
     { etiqueta: 'Productos', ruta: '/productos', icono: 'pi-box', roles: ACCESO.productos },
     { etiqueta: 'Comprobantes', ruta: '/comprobantes', icono: 'pi-file', roles: ACCESO.comprobantes },
 ];

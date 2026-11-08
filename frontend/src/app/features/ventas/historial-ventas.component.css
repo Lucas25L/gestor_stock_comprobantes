@@ -1,0 +1,185 @@
+:host {
+    display: block;
+}
+
+.pantalla {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.encabezado {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.encabezado h1 {
+    margin: 0 0 0.25rem;
+    font-size: 1.5rem;
+}
+
+.ayuda {
+    margin: 0 0 0.75rem;
+    color: #64748b;
+    font-size: 0.875rem;
+}
+
+.panel {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.etiqueta {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.atajos {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.atajos .etiqueta {
+    margin: 0 0.5rem 0 0;
+}
+
+.campos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.campo label {
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.campo-ancho {
+    grid-column: span 2;
+}
+
+.check {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    cursor: pointer;
+}
+
+.acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.acciones-dialogo {
+    justify-content: flex-end;
+    margin-top: 1rem;
+}
+
+.resumen {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.dato {
+    display: flex;
+    flex-direction: column;
+    min-width: 10rem;
+    padding: 0.75rem 1.25rem;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+}
+
+.dato-etiqueta {
+    color: #64748b;
+    font-size: 0.8rem;
+}
+
+.dato-valor {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.num {
+    text-align: right;
+    white-space: nowrap;
+}
+
+tr.anulada td {
+    color: #94a3b8;
+}
+
+tr.anulada td:nth-child(6) {
+    text-decoration: line-through;
+}
+
+.detalle {
+    padding: 0.5rem 1rem 1rem 3rem;
+}
+
+.detalle-tabla {
+    width: 100%;
+    max-width: 44rem;
+    border-collapse: collapse;
+    margin-bottom: 0.5rem;
+}
+
+.detalle-tabla th,
+.detalle-tabla td {
+    padding: 0.35rem 0.5rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.anulacion {
+    margin: 0.5rem 0 0;
+    color: #b91c1c;
+}
+
+.vacio {
+    padding: 1.5rem;
+    text-align: center;
+    color: #64748b;
+}
+
+.motivo {
+    display: block;
+    width: 100%;
+    margin-top: 0.5rem;
+    resize: vertical;
+}
+
+.contador {
+    display: block;
+    text-align: right;
+}
+
+:host ::ng-deep p-datepicker .p-datepicker,
+:host ::ng-deep p-datepicker .p-datepicker-input {
+    width: 100%;
+}
+
+p-select {
+    display: block;
+    width: 100%;
+}

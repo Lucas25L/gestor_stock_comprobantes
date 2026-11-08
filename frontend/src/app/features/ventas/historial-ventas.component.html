@@ -1,0 +1,308 @@
+<div class="pantalla">
+    <header class="encabezado">
+        <div>
+            <h1>Historial de ventas</h1>
+            <p class="ayuda">Consultá, anulá y emití comprobantes de las ventas del período.</p>
+        </div>
+        <a pButton routerLink="/ventas/nueva" label="Nueva venta" icon="pi pi-plus"></a>
+    </header>
+
+    <section class="panel filtros">
+        <div class="atajos">
+            <span class="etiqueta">Período</span>
+            <button pButton type="button" label="Hoy" size="small" severity="secondary" [outlined]="true" (click)="store.aplicarRango('hoy')"></button>
+            <button pButton type="button" label="Últimos 7 días" size="small" severity="secondary" [outlined]="true" (click)="store.aplicarRango('ultimos7')"></button>
+            <button pButton type="button" label="Este mes" size="small" severity="secondary" [outlined]="true" (click)="store.aplicarRango('mes')"></button>
+        </div>
+
+        <div class="campos">
+            <div class="campo">
+                <label for="filtro-desde">Desde</label>
+                <p-datepicker
+                    inputId="filtro-desde"
+                    [ngModel]="desde()"
+                    (ngModelChange)="cambiarDesde($event)"
+                    dateFormat="dd/mm/yy"
+                    [maxDate]="hoy"
+                    [showIcon]="true"
+                    iconDisplay="input"
+                    appendTo="body"
+                    styleClass="w-full" />
+            </div>
+            <div class="campo">
+                <label for="filtro-hasta">Hasta</label>
+                <p-datepicker
+                    inputId="filtro-hasta"
+                    [ngModel]="hasta()"
+                    (ngModelChange)="cambiarHasta($event)"
+                    dateFormat="dd/mm/yy"
+                    [maxDate]="hoy"
+                    [showIcon]="true"
+                    iconDisplay="input"
+                    appendTo="body"
+                    styleClass="w-full" />
+            </div>
+            <div class="campo">
+                <label>Medio de pago</label>
+                <p-select
+                    class="w-full"
+                    [options]="opcionesMedioPago()"
+                    optionLabel="nombre"
+                    optionValue="id"
+                    placeholder="Todos"
+                    [ngModel]="store.filtros().medioPago"
+                    (ngModelChange)="store.actualizarFiltros({ medioPago: $event })" />
+            </div>
+            <div class="campo campo-ancho">
+                <label for="filtro-texto">Producto o motivo de anulación</label>
+                <input
+                    pInputText
+                    id="filtro-texto"
+                    type="text"
+                    autocomplete="off"
+                    placeholder="Buscar…"
+                    [ngModel]="store.filtros().texto"
+                    (ngModelChange)="store.actualizarFiltros({ texto: $event })"
+                    (keydown.enter)="store.buscar()" />
+            </div>
+            <div class="campo">
+                <label for="filtro-min">Monto mínimo</label>
+                <input
+                    pInputText
+                    id="filtro-min"
+                    type="text"
+                    inputmode="decimal"
+                    autocomplete="off"
+                    placeholder="0,00"
+                    [ngModel]="store.filtros().totalMin"
+                    (ngModelChange)="store.actualizarFiltros({ totalMin: $event })"
+                    (keydown.enter)="store.buscar()" />
+            </div>
+            <div class="campo">
+                <label for="filtro-max">Monto máximo</label>
+                <input
+                    pInputText
+                    id="filtro-max"
+                    type="text"
+                    inputmode="decimal"
+                    autocomplete="off"
+                    placeholder="0,00"
+                    [ngModel]="store.filtros().totalMax"
+                    (ngModelChange)="store.actualizarFiltros({ totalMax: $event })"
+                    (keydown.enter)="store.buscar()" />
+            </div>
+        </div>
+
+        <label class="check">
+            <input
+                type="checkbox"
+                [checked]="store.filtros().incluirAnuladas"
+                (change)="store.actualizarFiltros({ incluirAnuladas: $any($event.target).checked })" />
+            Incluir ventas anuladas
+        </label>
+
+        @if (store.errorFiltros()) {
+            <p-message severity="warn" [text]="store.errorFiltros() ?? ''" />
+        }
+
+        <div class="acciones">
+            <button pButton type="button" label="Buscar" icon="pi pi-search" [loading]="store.cargando()" (click)="store.buscar()"></button>
+            <button pButton type="button" label="Limpiar filtros" icon="pi pi-filter-slash" severity="secondary" [text]="true" (click)="store.limpiarFiltros()"></button>
+        </div>
+    </section>
+
+    <section class="resumen">
+        <div class="dato">
+            <span class="dato-etiqueta">Ventas</span>
+            <span class="dato-valor">{{ store.resumen().cantidad }}</span>
+        </div>
+        <div class="dato">
+            <span class="dato-etiqueta">Total vendido</span>
+            <span class="dato-valor">{{ formatearDinero(store.resumen().total) }}</span>
+        </div>
+        @if (store.resumen().anuladas > 0) {
+            <div class="dato">
+                <span class="dato-etiqueta">Anuladas (no suman)</span>
+                <span class="dato-valor">{{ store.resumen().anuladas }}</span>
+            </div>
+        }
+    </section>
+
+    @if (store.errorCarga()) {
+        <p-message severity="error" [text]="store.errorCarga() ?? ''" />
+    }
+    @if (store.errorComprobante()) {
+        <p-message severity="error" [text]="store.errorComprobante() ?? ''" />
+    }
+
+    <section class="panel">
+        <p-table
+            [value]="store.ventas()"
+            dataKey="id"
+            [expandedRowKeys]="expandidas()"
+            [loading]="store.cargando()"
+            [stripedRows]="true"
+            size="small">
+            <ng-template #header>
+                <tr>
+                    <th style="width: 3rem"></th>
+                    <th>N°</th>
+                    <th>Fecha</th>
+                    <th>Vendedor</th>
+                    <th>Medio de pago</th>
+                    <th class="num">Total</th>
+                    <th>Estado</th>
+                    <th>Comprobante</th>
+                    <th></th>
+                </tr>
+            </ng-template>
+
+            <ng-template #body let-venta>
+                <tr [class.anulada]="!venta.activa">
+                    <td>
+                        <button
+                            pButton
+                            type="button"
+                            [text]="true"
+                            severity="secondary"
+                            [icon]="expandidas()[venta.id] ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                            [attr.aria-label]="'Ver el detalle de la venta ' + venta.id"
+                            [attr.aria-expanded]="!!expandidas()[venta.id]"
+                            (click)="alternar(venta)"></button>
+                    </td>
+                    <td>{{ venta.id }}</td>
+                    <td>{{ formatearFechaHora(venta.fecha) }}</td>
+                    <td>{{ venta.usuario_username }}</td>
+                    <td>{{ venta.medio_pago_nombre }}</td>
+                    <td class="num">{{ formatearDinero(venta.total) }}</td>
+                    <td>
+                        @if (venta.activa) {
+                            <p-tag severity="success" value="Confirmada" />
+                        } @else {
+                            <p-tag severity="danger" value="Anulada" />
+                        }
+                    </td>
+                    <td>
+                        @if (venta.comprobante_numero) {
+                            <p-tag severity="info" icon="pi pi-file" [value]="'N° ' + venta.comprobante_numero" />
+                        } @else if (venta.activa) {
+                            <button
+                                pButton
+                                type="button"
+                                label="Emitir"
+                                icon="pi pi-file"
+                                size="small"
+                                severity="secondary"
+                                [outlined]="true"
+                                [loading]="store.emitiendoVenta() === venta.id"
+                                [disabled]="store.emitiendoVenta() !== null"
+                                (click)="store.emitirComprobante(venta)"></button>
+                        } @else {
+                            <span class="ayuda">—</span>
+                        }
+                    </td>
+                    <td class="num">
+                        @if (venta.activa) {
+                            <button
+                                pButton
+                                type="button"
+                                label="Anular"
+                                icon="pi pi-ban"
+                                size="small"
+                                severity="danger"
+                                [text]="true"
+                                (click)="abrirAnulacion(venta)"></button>
+                        }
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template #expandedrow let-venta>
+                <tr>
+                    <td colspan="9">
+                        <div class="detalle">
+                            <table class="detalle-tabla">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th class="num">Cantidad</th>
+                                        <th class="num">Precio unitario</th>
+                                        <th class="num">Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (linea of venta.detalles; track linea.id) {
+                                        <tr>
+                                            <td>{{ linea.producto_nombre }}</td>
+                                            <td class="num">{{ formatearCantidad(linea.cantidad) }} {{ linea.unidad_abreviatura }}</td>
+                                            <td class="num">{{ formatearDinero(linea.precio_unitario) }}</td>
+                                            <td class="num">{{ formatearDinero(linea.subtotal) }}</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                            <p class="ayuda">
+                                Impuestos nacionales incluidos (informativo): {{ formatearDinero(venta.impuestos_nacionales) }}
+                            </p>
+                            @if (!venta.activa) {
+                                <p class="anulacion">
+                                    Anulada por <strong>{{ venta.anulada_por_username }}</strong>
+                                    el {{ formatearFechaHora(venta.fecha_anulacion) }}.
+                                    Motivo: {{ venta.motivo_anulacion }}
+                                </p>
+                            }
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template #emptymessage>
+                <tr>
+                    <td colspan="9" class="vacio">No hay ventas para los filtros elegidos.</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </section>
+</div>
+
+<p-dialog
+    [visible]="ventaAAnular() !== null"
+    (onHide)="cerrarAnulacion()"
+    [modal]="true"
+    [draggable]="false"
+    [closable]="!store.anulando()"
+    [closeOnEscape]="!store.anulando()"
+    [style]="{ width: '30rem' }"
+    [breakpoints]="{ '640px': '95vw' }"
+    [header]="'Anular venta N° ' + (ventaAAnular()?.id ?? '')">
+    @if (ventaAAnular(); as venta) {
+        <p class="ayuda">
+            {{ formatearFechaHora(venta.fecha) }} · {{ venta.medio_pago_nombre }} ·
+            <strong>{{ formatearDinero(venta.total) }}</strong>
+        </p>
+        <p-message
+            severity="warn"
+            text="Se repone el stock de los productos vendidos y el comprobante emitido, si existe, queda anulado. No se puede deshacer." />
+
+        <label class="etiqueta" for="motivo-anulacion">Motivo (obligatorio)</label>
+        <textarea
+            pInputText
+            id="motivo-anulacion"
+            rows="3"
+            maxlength="255"
+            class="motivo"
+            placeholder="Por ejemplo: error de carga, el cliente devolvió la mercadería…"
+            [ngModel]="motivo()"
+            (ngModelChange)="motivo.set($event)"></textarea>
+        <small class="ayuda contador">{{ motivo().length }}/255</small>
+
+        @if (store.errorAnulacion()) {
+            <p-message severity="error" [text]="store.errorAnulacion() ?? ''" />
+        }
+
+        <div class="acciones acciones-dialogo">
+            <button pButton type="button" label="Cancelar" severity="secondary" [text]="true" [disabled]="store.anulando()" (click)="cerrarAnulacion()"></button>
+            <button pButton type="button" label="Anular venta" icon="pi pi-ban" severity="danger" [loading]="store.anulando()" (click)="confirmarAnulacion()"></button>
+        </div>
+    }
+</p-dialog>
