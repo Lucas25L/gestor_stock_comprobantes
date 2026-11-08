@@ -107,3 +107,23 @@ export function formatearDinero(texto: string): string {
     const cuerpo = `${agruparMiles(negativo ? entera.slice(1) : entera)},${fraccion}`;
     return `${negativo ? '-' : ''}$ ${cuerpo}`;
 }
+
+function recortarCeros(valor: Decimal): string {
+    const [entera, fraccion = ''] = aTexto(valor).split('.');
+    const decimales = fraccion.replace(/0+$/, '');
+    return decimales ? `${entera}.${decimales}` : entera;
+}
+
+/** Forma mínima de una cantidad: "2.500" → "2.5", "3.000" → "3". Es lo que se envía al backend. */
+export function normalizarCantidad(texto: string): string {
+    return recortarCeros(parsear(texto));
+}
+
+/** Suma exacta de dos cantidades (hasta 3 decimales), en su forma mínima. */
+export function sumarCantidades(a: string, b: string): string {
+    const x = parsear(a);
+    const y = parsear(b);
+    const escala = Math.max(x.escala, y.escala);
+    const unidades = redondear(x, escala).unidades + redondear(y, escala).unidades;
+    return recortarCeros({ unidades, escala });
+}

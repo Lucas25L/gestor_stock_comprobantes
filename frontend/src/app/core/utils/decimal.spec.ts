@@ -4,6 +4,8 @@ import {
     formatearCantidad,
     formatearDinero,
     multiplicarDinero,
+    normalizarCantidad,
+    sumarCantidades,
     sumarDinero,
 } from './decimal';
 
@@ -43,6 +45,34 @@ describe('decimal', () => {
 
         it('una lista vacía da cero', () => {
             expect(sumarDinero([])).toBe('0.00');
+        });
+    });
+
+    describe('normalizarCantidad', () => {
+        it('recorta los ceros finales', () => {
+            expect(normalizarCantidad('2.500')).toBe('2.5');
+            expect(normalizarCantidad('3.000')).toBe('3');
+            expect(normalizarCantidad('0.050')).toBe('0.05');
+            expect(normalizarCantidad('10')).toBe('10');
+        });
+
+        it('rechaza texto que no es un número', () => {
+            expect(() => normalizarCantidad('abc')).toThrow();
+        });
+    });
+
+    describe('sumarCantidades', () => {
+        it('suma sin el error de la coma flotante', () => {
+            expect(sumarCantidades('0.1', '0.2')).toBe('0.3');
+        });
+
+        it('devuelve enteros cuando no quedan decimales', () => {
+            expect(sumarCantidades('1.5', '1.5')).toBe('3');
+            expect(sumarCantidades('2', '3')).toBe('5');
+        });
+
+        it('suma cantidades con tres decimales', () => {
+            expect(sumarCantidades('1000.001', '0.999')).toBe('1001');
         });
     });
 
