@@ -1,4 +1,4 @@
-import { DatosProducto, UnidadMedida } from '../../core/api/modelos';
+import { DatosProducto, Producto, UnidadMedida } from '../../core/api/modelos';
 import {
     compararDecimales,
     esCantidadValida,
@@ -177,5 +177,20 @@ export function validarProducto(
             categoria: formulario.categoria,
             unidad: unidad.id,
         },
+    };
+}
+
+/** Formulario de edición con los datos actuales del producto (todo como texto). */
+export function formularioDe(producto: Producto): FormularioProducto {
+    return {
+        nombre: producto.nombre,
+        descripcion: producto.descripcion,
+        precio: producto.precio,
+        // La API manda "5.000": se normaliza para que una unidad entera no lo rechace por los decimales.
+        stockMinimo: normalizarCantidad(producto.stock_minimo),
+        codigoBarras: producto.codigo_barras ?? '',
+        categoria: producto.categoria,
+        unidad: producto.unidad,
+        stockInicial: '',
     };
 }

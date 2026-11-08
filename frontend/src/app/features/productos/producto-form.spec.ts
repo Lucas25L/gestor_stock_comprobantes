@@ -1,5 +1,5 @@
-import { UnidadMedida } from '../../core/api/modelos';
-import { FORMULARIO_VACIO, FormularioProducto, validarProducto } from './producto-form';
+import { Producto, UnidadMedida } from '../../core/api/modelos';
+import { FORMULARIO_VACIO, FormularioProducto, formularioDe, validarProducto } from './producto-form';
 
 const unidad: UnidadMedida = { id: 1, nombre: 'Unidad', abreviatura: 'u', permite_decimales: false, activo: true };
 const kilo: UnidadMedida = { id: 2, nombre: 'Kilogramo', abreviatura: 'kg', permite_decimales: true, activo: true };
@@ -168,5 +168,42 @@ describe('validarProducto', () => {
         const r = validarProducto(formulario({ nombre: '', precio: '0', categoria: null }), unidades, 'crear');
 
         expect(Object.keys(r.errores).sort()).toEqual(['categoria', 'nombre', 'precio']);
+    });
+});
+
+describe('formularioDe', () => {
+    const gaseosa = {
+        nombre: 'Gaseosa',
+        descripcion: '',
+        precio: '1500.00',
+        stock_minimo: '5.000',
+        codigo_barras: null,
+        categoria: 1,
+        unidad: 1,
+    } as Producto;
+
+    it('convierte el producto en texto, sin ceros finales en el stock mínimo', () => {
+        expect(formularioDe(gaseosa)).toEqual({
+            nombre: 'Gaseosa',
+            descripcion: '',
+            precio: '1500.00',
+            stockMinimo: '5',
+            codigoBarras: '',
+            categoria: 1,
+            unidad: 1,
+            stockInicial: '',
+        });
+    });
+
+    it('un producto de unidad entera pasa la validación al editarlo sin tocar nada', () => {
+        const r = validarProducto(formularioDe(gaseosa), unidades, 'editar');
+
+        expect(r.errores).toEqual({});
+        expect(r.datos?.stock_minimo).toBe('5');
+        expect(r.datos?.codigo_barras).toBeNull();
+    });
+
+    it('conserva el código de barras cuando existe', () => {
+        expect(formularioDe({ ...gaseosa, codigo_barras: '7790001' }).codigoBarras).toBe('7790001');
     });
 });
