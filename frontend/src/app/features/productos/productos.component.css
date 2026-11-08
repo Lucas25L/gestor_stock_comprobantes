@@ -129,7 +129,8 @@ tr.inactivo td {
 }
 
 p-select {
-    display: block;
+    /* flex y no block: el selector acomoda la etiqueta y la flecha en fila. */
+    display: flex;
     width: 100%;
 }
 
