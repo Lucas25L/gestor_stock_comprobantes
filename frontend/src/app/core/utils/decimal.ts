@@ -127,3 +127,9 @@ export function sumarCantidades(a: string, b: string): string {
     const unidades = redondear(x, escala).unidades + redondear(y, escala).unidades;
     return recortarCeros({ unidades, escala });
 }
+
+/** Importe tal como lo escribe el usuario ("1500", "1500,5") → "1500.5", o null si no es válido. */
+export function normalizarImporte(texto: string): string | null {
+    const limpio = texto.trim().replace(',', '.');
+    return /^\d+(\.\d{1,2})?$/.test(limpio) ? limpio : null;
+}

@@ -5,6 +5,7 @@ import {
     formatearDinero,
     multiplicarDinero,
     normalizarCantidad,
+    normalizarImporte,
     sumarCantidades,
     sumarDinero,
 } from './decimal';
@@ -101,6 +102,20 @@ describe('decimal', () => {
         it('rechaza cero, negativos, más de tres decimales y texto', () => {
             for (const texto of ['0', '0.000', '-1', '1.2345', '', 'abc', '1.', '.5']) {
                 expect(esCantidadValida(texto, true)).toBe(false);
+            }
+        });
+    });
+
+    describe('normalizarImporte', () => {
+        it('acepta enteros y hasta dos decimales, con coma o punto', () => {
+            expect(normalizarImporte('1500')).toBe('1500');
+            expect(normalizarImporte('1500,5')).toBe('1500.5');
+            expect(normalizarImporte(' 20.25 ')).toBe('20.25');
+        });
+
+        it('rechaza lo que no es un importe', () => {
+            for (const texto of ['', 'abc', '-5', '1.234', '1.500,50', '1,', ',5']) {
+                expect(normalizarImporte(texto)).toBeNull();
             }
         });
     });
