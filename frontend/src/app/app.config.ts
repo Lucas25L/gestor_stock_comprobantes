@@ -25,10 +25,6 @@ export const appConfig: ApplicationConfig = {
     provideZonelessChangeDetection(),
     provideRouter(routes),
 
-    // Configura el proveedor global de HTTP para que los servicios
-    // de la aplicación puedan hacer solicitudes HTTP fácilmente.
-    provideHttpClient(),
-
     providePrimeNG({
       theme: {
         preset: Aura
