@@ -1,4 +1,6 @@
-import { ApplicationConfig, provideAppInitializer, provideZonelessChangeDetection } from '@angular/core';
+import { registerLocaleData } from '@angular/common';
+import localeEsAr from '@angular/common/locales/es-AR';
+import { ApplicationConfig, LOCALE_ID, provideAppInitializer, provideZonelessChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { providePrimeNG } from 'primeng/config';
 
@@ -12,6 +14,9 @@ import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { initAuth } from './core/initializers/auth.initializer';
 
+// Datos de formato de Argentina (separador decimal, miles, nombres de meses) para los pipes.
+registerLocaleData(localeEsAr);
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideHttpClient(
@@ -23,6 +28,7 @@ export const appConfig: ApplicationConfig = {
         return init();
     }),
     provideZonelessChangeDetection(),
+    { provide: LOCALE_ID, useValue: 'es-AR' },
     provideRouter(routes),
 
     providePrimeNG({
