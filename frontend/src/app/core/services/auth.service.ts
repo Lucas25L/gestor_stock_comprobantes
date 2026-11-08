@@ -1,9 +1,10 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { Observable, catchError, of, tap } from 'rxjs';
 
 import { Usuario } from '../models/usuario.model';
+import { Rol } from '../models/rol';
 import { LoginRequestDto } from '../models/dto/login-request.dto';
 import { AuthResponseDto } from '../models/dto/auth-response.dto';
 import { environment } from '../../../environments/environment';
@@ -18,6 +19,7 @@ export class AuthService {
 
     usuarioActual = this.#usuarioState.asReadonly();
     estaAutenticado = computed(() => this.#usuarioState() !== null);
+    rol = computed<Rol | null>(() => this.#usuarioState()?.rol ?? null);
 
     constructor(
         private router: Router,
@@ -30,18 +32,32 @@ export class AuthService {
             credenciales,
             { withCredentials: true }
         ).pipe(
-            tap((respuesta) => {
-                this.#accessToken.set(respuesta.access);
-                this.#usuarioState.set(respuesta.usuario);
-            })
+            tap((respuesta) => this.#guardarSesion(respuesta))
         );
     }
 
+    /** Cierra la sesión: invalida el refresh token en el backend y limpia el estado local. */
     logout(): void {
+        this.http.post(
+            `${environment.apiUrl}/logout/`,
+            {},
+            { withCredentials: true }
+        ).pipe(
+            // Aunque el backend falle (red caída, token vencido), la sesión local se cierra igual.
+            catchError(() => of(null))
+        ).subscribe(() => this.cerrarSesionLocal());
+    }
+
+    /** Solo limpia el estado y vuelve al login. No llama al backend (lo usa el interceptor). */
+    cerrarSesionLocal(): void {
         this.#accessToken.set(null);
         this.#usuarioState.set(null);
         this.router.navigate(['/login']);
-        // Nota: la cookie del refresh la limpia el backend en un endpoint de logout (paso pendiente)
+    }
+
+    tieneRol(permitidos: readonly Rol[]): boolean {
+        const actual = this.rol();
+        return actual !== null && permitidos.includes(actual);
     }
 
     obtenerToken(): string | null {
@@ -59,10 +75,12 @@ export class AuthService {
             {},
             { withCredentials: true }
         ).pipe(
-            tap((respuesta) => {
-                this.#accessToken.set(respuesta.access);
-                this.#usuarioState.set(respuesta.usuario);
-            })
+            tap((respuesta) => this.#guardarSesion(respuesta))
         );
+    }
+
+    #guardarSesion(respuesta: AuthResponseDto): void {
+        this.#accessToken.set(respuesta.access);
+        this.#usuarioState.set(respuesta.usuario);
     }
 }

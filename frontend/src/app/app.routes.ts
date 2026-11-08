@@ -1,57 +1,33 @@
 import { Routes } from '@angular/router';
-// Componentes originales de tu GitHub (Etapa 1)
+
+import { ACCESO } from './core/navegacion';
+import { authGuard } from './core/guards/auth.guard';
+import { rolGuard } from './core/guards/rol.guard';
+import { AppLayoutComponent } from './layouts/app-layout.component';
+import { LoginComponent } from './features/auth/login.component';
+import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { ListaProductosComponent } from './features/productos/lista-productos.component';
 import { CarritoVentaComponent } from './features/ventas/carrito-venta.component';
 import { VisorComprobanteComponent } from './features/comprobantes/visor-comprobante.component';
 
-// Componentes e Infraestructura de Identidad creados en la Etapa 1.5
-import { LoginComponent } from './features/auth/login.component';
-import { DashboardComponent } from './features/dashboard/dashboard.component';
-import { authGuard } from './core/guards/auth.guard';
-import { AppLayoutComponent } from './layouts/app-layout.component';
-
 export const routes: Routes = [
-  // 1. Ruta raíz del sistema: Ahora redirige por defecto al Dashboard protegido
-  { 
-    path: '', 
-    redirectTo: 'dashboard', 
-    pathMatch: 'full' 
-  },
+    { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
 
-  // 2. Pantalla de Login: Totalmente aislada de la barra de navegación global y del Guard
-  { 
-    path: 'login', 
-    component: LoginComponent 
-  },
+    // Login: fuera del layout y sin guard.
+    { path: 'login', component: LoginComponent },
 
-  // 3. Bloque de Rutas Protegidas del Sistema (Requieren Autenticación en memoria)
-  {
-    path: '',
-    component: AppLayoutComponent,
-    canActivate: [authGuard],
-    children: [
-      {
-        path: 'dashboard',
-        component: DashboardComponent
-      },
-      {
-        path: 'productos',
-        component: ListaProductosComponent
-      },
-      {
-        path: 'ventas',
-        component: CarritoVentaComponent
-      },
-      {
-        path: 'comprobantes',
-        component: VisorComprobanteComponent
-      }
-    ]
-  },
+    // Rutas protegidas: exigen sesión (authGuard) y un rol permitido (rolGuard).
+    {
+        path: '',
+        component: AppLayoutComponent,
+        canActivate: [authGuard],
+        children: [
+            { path: 'dashboard', component: DashboardComponent, canActivate: [rolGuard], data: { roles: ACCESO.inicio } },
+            { path: 'productos', component: ListaProductosComponent, canActivate: [rolGuard], data: { roles: ACCESO.productos } },
+            { path: 'ventas', component: CarritoVentaComponent, canActivate: [rolGuard], data: { roles: ACCESO.ventas } },
+            { path: 'comprobantes', component: VisorComprobanteComponent, canActivate: [rolGuard], data: { roles: ACCESO.comprobantes } },
+        ],
+    },
 
-  // 4. Ruta comodín de resguardo: Si escriben una URL rota o inexistente, rebotan al Dashboard seguro
-  { 
-    path: '**', 
-    redirectTo: 'dashboard' 
-  }
+    { path: '**', redirectTo: 'dashboard' },
 ];

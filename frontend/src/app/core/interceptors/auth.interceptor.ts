@@ -40,7 +40,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
                     }),
                     catchError((errorRefresh) => {
                         refrescando = false;
-                        authService.logout();
+                        authService.cerrarSesionLocal();
                         return throwError(() => errorRefresh);
                     })
                 );
