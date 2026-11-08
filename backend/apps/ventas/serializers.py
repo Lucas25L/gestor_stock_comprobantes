@@ -1,6 +1,7 @@
 from decimal import ROUND_HALF_UP, Decimal
 
 from django.db import transaction
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from apps.auditoria.models import Auditoria
@@ -14,11 +15,14 @@ from .models import DetalleVenta, Venta
 
 class DetalleVentaSerializer(serializers.ModelSerializer):
     producto_nombre = serializers.CharField(source='producto.nombre', read_only=True)
+    unidad_abreviatura = serializers.CharField(
+        source='producto.unidad.abreviatura', read_only=True
+    )
 
     class Meta:
         model = DetalleVenta
         fields = (
-            'id', 'producto', 'producto_nombre', 'cantidad',
+            'id', 'producto', 'producto_nombre', 'unidad_abreviatura', 'cantidad',
             'precio_unitario', 'subtotal',
         )
         read_only_fields = ('id', 'precio_unitario', 'subtotal')
@@ -36,6 +40,9 @@ class DetalleVentaInputSerializer(serializers.Serializer):
 class VentaSerializer(serializers.ModelSerializer):
     medio_pago = serializers.PrimaryKeyRelatedField(queryset=MedioPago.objects.filter(activo=True))
     medio_pago_nombre = serializers.CharField(source='medio_pago.nombre', read_only=True)
+    usuario_username = serializers.CharField(source='usuario.username', read_only=True)
+    comprobante = serializers.SerializerMethodField()
+    comprobante_numero = serializers.SerializerMethodField()
     estado = serializers.SerializerMethodField()
     anulada_por_username = serializers.CharField(source='anulada_por.username', read_only=True, default=None)
     detalles = DetalleVentaSerializer(many=True, read_only=True)
@@ -44,9 +51,10 @@ class VentaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Venta
         fields = (
-            'id', 'usuario', 'medio_pago', 'medio_pago_nombre', 'fecha', 'total',
+            'id', 'usuario', 'usuario_username', 'medio_pago', 'medio_pago_nombre', 'fecha', 'total',
             'impuestos_nacionales', 'activa', 'estado', 'motivo_anulacion', 'anulada_por',
-            'anulada_por_username', 'fecha_anulacion', 'detalles', 'items',
+            'anulada_por_username', 'fecha_anulacion', 'comprobante', 'comprobante_numero',
+            'detalles', 'items',
         )
         read_only_fields = (
             'id', 'usuario', 'fecha', 'total', 'impuestos_nacionales', 'activa',
@@ -55,6 +63,17 @@ class VentaSerializer(serializers.ModelSerializer):
 
     def get_estado(self, venta) -> str:
         return venta.estado
+
+    @extend_schema_field(serializers.IntegerField(allow_null=True))
+    def get_comprobante(self, venta):
+        # Id del comprobante emitido, o None si la venta todavía no tiene.
+        comprobante = getattr(venta, 'comprobante', None)
+        return comprobante.pk if comprobante else None
+
+    @extend_schema_field(serializers.CharField(allow_null=True))
+    def get_comprobante_numero(self, venta):
+        comprobante = getattr(venta, 'comprobante', None)
+        return comprobante.numero_formateado if comprobante else None
 
     def validate_items(self, items):
         """Controles previos para dar errores claros. La verificación definitiva

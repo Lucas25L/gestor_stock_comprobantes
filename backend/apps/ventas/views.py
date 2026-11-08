@@ -26,8 +26,8 @@ class VentaViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = (
-            Venta.objects.select_related('usuario', 'medio_pago', 'anulada_por')
-            .prefetch_related('detalles__producto')
+            Venta.objects.select_related('usuario', 'medio_pago', 'anulada_por', 'comprobante')
+            .prefetch_related('detalles__producto__unidad')
             .all()
         )
         # El listado oculta las anuladas salvo que se pidan; el detalle siempre las muestra.
