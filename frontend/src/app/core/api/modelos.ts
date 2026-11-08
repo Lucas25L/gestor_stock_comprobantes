@@ -96,3 +96,84 @@ export interface Comprobante {
     estado: 'emitido' | 'anulado';
     contenido: ContenidoComprobante;
 }
+
+export interface Categoria {
+    id: number;
+    nombre: string;
+    descripcion: string;
+    activa: boolean;
+    creado_en: string;
+    actualizado_en: string;
+}
+
+export interface UnidadMedida {
+    id: number;
+    nombre: string;
+    abreviatura: string;
+    permite_decimales: boolean;
+    activo: boolean;
+}
+
+export type TipoMovimiento = 'ingreso' | 'ajuste' | 'venta' | 'anulacion_venta';
+
+export interface MovimientoStock {
+    id: number;
+    producto: number;
+    producto_nombre: string;
+    usuario: number;
+    usuario_username: string;
+    tipo: TipoMovimiento;
+    tipo_display: string;
+    /** Con signo: positiva suma al stock, negativa resta. */
+    cantidad: string;
+    stock_resultante: string;
+    motivo: string;
+    referencia_origen: string;
+    fecha_hora: string;
+}
+
+/** Respuesta paginada de DRF (por ahora solo la usan los movimientos de stock). */
+export interface Pagina<T> {
+    count: number;
+    next: string | null;
+    previous: string | null;
+    results: T[];
+}
+
+/** Campos editables de un producto. El stock no está: solo cambia por movimientos. */
+export interface DatosProducto {
+    nombre: string;
+    descripcion: string;
+    precio: string;
+    stock_minimo: string;
+    /** null si no tiene: un texto vacío chocaría con el siguiente producto sin código (es único). */
+    codigo_barras: string | null;
+    categoria: number;
+    unidad: number;
+}
+
+export interface DatosCategoria {
+    nombre: string;
+    descripcion: string;
+}
+
+export interface DatosUnidad {
+    nombre: string;
+    abreviatura: string;
+    permite_decimales: boolean;
+}
+
+export interface NuevoIngreso {
+    producto: number;
+    /** Siempre positiva, con hasta 3 decimales. */
+    cantidad: string;
+    motivo: string;
+    referencia?: string;
+}
+
+export interface NuevoAjuste {
+    producto: number;
+    /** Con signo y distinta de cero: "-2.5" resta, "3" suma. */
+    cantidad: string;
+    motivo: string;
+}
