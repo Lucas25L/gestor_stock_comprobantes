@@ -114,6 +114,19 @@ export interface UnidadMedida {
     activo: boolean;
 }
 
+/** Usuario tal como lo devuelve GET /api/usuarios/ (solo lo consulta el Administrador). */
+export interface UsuarioListado {
+    id: number;
+    username: string;
+    email: string;
+    first_name: string;
+    last_name: string;
+    rol: number;
+    rol_nombre: string;
+    is_active: boolean;
+    date_joined: string;
+}
+
 export type TipoMovimiento = 'ingreso' | 'ajuste' | 'venta' | 'anulacion_venta';
 
 export interface MovimientoStock {
