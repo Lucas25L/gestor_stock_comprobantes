@@ -70,9 +70,9 @@ function validarPrecio(texto: string): { error?: string; valor?: string } {
  * Cantidad escrita por el usuario. Si `permiteCero`, "0" es válido (stock mínimo);
  * si no, debe ser mayor a 0 (ingreso inicial). Entera si la unidad no admite decimales.
  */
-function validarCantidad(
+export function validarCantidad(
     texto: string,
-    unidad: UnidadMedida,
+    unidad: Pick<UnidadMedida, 'nombre' | 'permite_decimales'>,
     permiteCero: boolean,
 ): { error?: string; valor?: string } {
     const limpio = texto.trim().replace(',', '.');
