@@ -66,7 +66,7 @@
                         placeholder="Nombre o código de barras">
                         <ng-template #item let-producto>
                             <div class="sugerencia">
-                                <span class="sugerencia-nombre">{{ producto.nombre }}</span>
+                                <span class="sugerencia-nombre">{{ producto.nombre }}{{ producto.activo ? '' : ' (desactivado)' }}</span>
                                 <span class="sugerencia-detalle">
                                     {{ formatearDinero(producto.precio) }} / {{ producto.unidad_abreviatura }}
                                     · Stock: {{ formatearCantidad(producto.stock) }}
@@ -96,6 +96,9 @@
                             <tr>
                                 <td>
                                     <div class="producto">{{ linea.producto.nombre }}</div>
+                                    @if (!linea.producto.activo) {
+                                        <small class="desactivado">Desactivado: se vende hasta agotar el stock.</small>
+                                    }
                                     <small class="stock" [class.excedido]="linea.excedeStock">
                                         Stock: {{ formatearCantidad(linea.producto.stock) }}
                                         {{ linea.producto.unidad_abreviatura }}

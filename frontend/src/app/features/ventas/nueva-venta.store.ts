@@ -7,6 +7,7 @@ import { MediosPagoApi } from '../../core/api/medios-pago.api';
 import { Comprobante, MedioPago, Producto, Venta } from '../../core/api/modelos';
 import { ProductosApi } from '../../core/api/productos.api';
 import { VentasApi } from '../../core/api/ventas.api';
+import { compararDecimales } from '../../core/utils/decimal';
 import { mensajeDeError } from '../../core/utils/errores';
 import { CarritoService } from './carrito.service';
 
@@ -15,6 +16,14 @@ const MAXIMO_SUGERENCIAS = 20;
 const MENSAJE_SIN_CONEXION =
     'No se pudo conectar con el servidor. Antes de reintentar, revisá el historial de ventas: ' +
     'es posible que la venta ya se haya registrado.';
+
+/**
+ * Productos que se pueden vender: los activos y, por RN-10, los desactivados que todavía
+ * tienen stock. Un desactivado agotado ya no se puede vender y no se ofrece.
+ */
+function vendibles(productos: Producto[]): Producto[] {
+    return productos.filter((p) => p.activo || compararDecimales(p.stock, '0') > 0);
+}
 
 /** Minúsculas y sin tildes, para que "cafe" encuentre "Café". */
 function normalizar(texto: string): string {
@@ -70,16 +79,16 @@ export class NuevaVentaStore {
             this.#ventaRegistrada() === null,
     );
 
-    /** Carga los productos activos y los medios de pago activos. */
+    /** Carga los productos vendibles (activos y desactivados con stock) y los medios de pago activos. */
     cargar(): void {
         this.#cargando.set(true);
         this.#errorCarga.set(null);
         forkJoin({
-            productos: this.#productosApi.listar(),
+            productos: this.#productosApi.listar({ incluir_inactivos: true }),
             mediosPago: this.#mediosPagoApi.listar(),
         }).subscribe({
             next: ({ productos, mediosPago }) => {
-                this.#productos.set(productos);
+                this.#productos.set(vendibles(productos));
                 this.#mediosPago.set(mediosPago);
                 this.#cargando.set(false);
             },
@@ -179,8 +188,8 @@ export class NuevaVentaStore {
 
     /** Actualiza el stock mostrado. Si falla, se sigue con los datos anteriores. */
     #recargarProductos(): void {
-        this.#productosApi.listar().subscribe({
-            next: (productos) => this.#productos.set(productos),
+        this.#productosApi.listar({ incluir_inactivos: true }).subscribe({
+            next: (productos) => this.#productos.set(vendibles(productos)),
             error: () => undefined,
         });
     }

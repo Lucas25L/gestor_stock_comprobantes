@@ -142,3 +142,8 @@ p-select {
 .acciones {
     margin-top: 1rem;
 }
+
+.desactivado {
+    display: block;
+    color: #b45309;
+}

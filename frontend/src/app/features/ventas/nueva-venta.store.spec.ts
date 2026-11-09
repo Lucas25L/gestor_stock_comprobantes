@@ -59,7 +59,8 @@ const comprobante = {
 } as Comprobante;
 
 describe('NuevaVentaStore', () => {
-    const PRODUCTOS = `${environment.apiUrl}/productos/`;
+    // Nueva venta también pide los desactivados: se venden hasta agotar su stock (RN-10).
+    const PRODUCTOS = `${environment.apiUrl}/productos/?incluir_inactivos=true`;
     const MEDIOS = `${environment.apiUrl}/medios-pago/`;
     const VENTAS = `${environment.apiUrl}/ventas/`;
     const COMPROBANTES = `${environment.apiUrl}/comprobantes/`;
@@ -124,6 +125,41 @@ describe('NuevaVentaStore', () => {
         expect(store.buscar('7790001').map((p) => p.nombre)).toEqual(['Gaseosa']);
         expect(store.buscar('   ')).toEqual([]);
         expect(store.buscar('zzz')).toEqual([]);
+    });
+
+    it('pide también los productos desactivados', () => {
+        store.cargar();
+
+        const peticion = http.expectOne(PRODUCTOS);
+        expect(peticion.request.params.get('incluir_inactivos')).toBe('true');
+        peticion.flush([]);
+        http.expectOne(MEDIOS).flush(mediosPago);
+    });
+
+    it('ofrece los desactivados con stock y los activos sin stock, pero no los desactivados agotados', () => {
+        const desactivadoConStock = producto({ id: 10, nombre: 'Alfajor', activo: false, stock: '4.000' });
+        const desactivadoAgotado = producto({ id: 11, nombre: 'Alfajor viejo', activo: false, stock: '0.000' });
+        const activoSinStock = producto({ id: 12, nombre: 'Chicle', stock: '0.000' });
+        store.cargar();
+        http.expectOne(PRODUCTOS).flush([gaseosa, desactivadoConStock, desactivadoAgotado, activoSinStock]);
+        http.expectOne(MEDIOS).flush(mediosPago);
+
+        expect(store.productos().map((p) => p.id)).toEqual([1, 10, 12]);
+        expect(store.buscar('alfajor').map((p) => p.id)).toEqual([10]);
+    });
+
+    it('al recargar el stock después de una venta también filtra los desactivados agotados', () => {
+        cargar();
+        carrito.agregar(gaseosa, '2');
+        store.seleccionarMedioPago(1);
+        store.confirmar();
+        http.expectOne(VENTAS).flush(venta);
+
+        const recarga = http.expectOne(PRODUCTOS);
+        expect(recarga.request.params.get('incluir_inactivos')).toBe('true');
+        recarga.flush([gaseosa, producto({ id: 10, nombre: 'Alfajor', activo: false, stock: '0.000' })]);
+
+        expect(store.productos().map((p) => p.id)).toEqual([1]);
     });
 
     it('encuentra un producto solo por código de barras exacto', () => {
