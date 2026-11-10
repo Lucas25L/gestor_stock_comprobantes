@@ -1,0 +1,368 @@
+<div class="pantalla">
+    <header class="encabezado">
+        <div>
+            <h1>Stock</h1>
+            <p class="ayuda">
+                Ingresos de mercadería, ajustes y el historial de movimientos. Cada movimiento queda registrado con su usuario y no se puede modificar.
+            </p>
+        </div>
+        <div class="acciones acciones-encabezado">
+            <button pButton type="button" label="Registrar ingreso" icon="pi pi-plus" (click)="abrirIngreso()"></button>
+            <button pButton type="button" label="Registrar ajuste" icon="pi pi-sliders-h" severity="secondary" (click)="abrirAjuste()"></button>
+        </div>
+    </header>
+
+    @if (store.exito()) {
+        <p-message severity="success" [text]="store.exito() ?? ''" />
+        <button pButton type="button" label="Entendido" size="small" severity="secondary" [text]="true" (click)="store.descartarExito()"></button>
+    }
+    @if (store.errorCarga()) {
+        <p-message severity="error" [text]="store.errorCarga() ?? ''" />
+    }
+    @if (store.errorCatalogos()) {
+        <p-message severity="error" [text]="store.errorCatalogos() ?? ''" />
+    }
+    @if (store.errorFiltros()) {
+        <p-message severity="warn" [text]="store.errorFiltros() ?? ''" />
+    }
+
+    <section class="panel filtros">
+        <div class="campos">
+            <div class="campo campo-ancho">
+                <label for="filtro-texto">Buscar</label>
+                <input
+                    pInputText
+                    id="filtro-texto"
+                    type="text"
+                    autocomplete="off"
+                    placeholder="Producto, motivo u origen"
+                    [ngModel]="store.filtros().texto"
+                    (ngModelChange)="store.actualizarFiltros({ texto: $event })"
+                    (keydown.enter)="store.buscar()" />
+            </div>
+            <div class="campo">
+                <label>Producto</label>
+                <p-select
+                    class="w-full"
+                    [options]="opcionesProductoFiltro()"
+                    optionLabel="nombre"
+                    optionValue="id"
+                    placeholder="Todos"
+                    [filter]="true"
+                    [ngModel]="store.filtros().producto"
+                    (ngModelChange)="filtrar({ producto: $event })" />
+            </div>
+            <div class="campo">
+                <label>Tipo de movimiento</label>
+                <p-select
+                    class="w-full"
+                    [options]="opcionesTipo"
+                    optionLabel="nombre"
+                    optionValue="id"
+                    placeholder="Todos"
+                    [ngModel]="store.filtros().tipo"
+                    (ngModelChange)="filtrar({ tipo: $event })" />
+            </div>
+            @if (esAdministrador()) {
+                <div class="campo">
+                    <label>Usuario</label>
+                    <p-select
+                        class="w-full"
+                        [options]="opcionesUsuarioFiltro()"
+                        optionLabel="nombre"
+                        optionValue="id"
+                        placeholder="Todos"
+                        [ngModel]="store.filtros().usuario"
+                        (ngModelChange)="filtrar({ usuario: $event })" />
+                </div>
+            }
+            <div class="campo">
+                <label for="filtro-desde">Desde</label>
+                <input
+                    pInputText
+                    id="filtro-desde"
+                    type="date"
+                    [ngModel]="store.filtros().desde"
+                    (ngModelChange)="store.actualizarFiltros({ desde: $event })"
+                    (keydown.enter)="store.buscar()" />
+            </div>
+            <div class="campo">
+                <label for="filtro-hasta">Hasta</label>
+                <input
+                    pInputText
+                    id="filtro-hasta"
+                    type="date"
+                    [ngModel]="store.filtros().hasta"
+                    (ngModelChange)="store.actualizarFiltros({ hasta: $event })"
+                    (keydown.enter)="store.buscar()" />
+            </div>
+        </div>
+
+        @if (!esAdministrador()) {
+            <div class="opciones">
+                <label class="check">
+                    <input
+                        type="checkbox"
+                        [checked]="miId() !== null && store.filtros().usuario === miId()"
+                        (change)="soloMisMovimientos($any($event.target).checked)" />
+                    Solo mis movimientos
+                </label>
+            </div>
+        }
+
+        <div class="acciones">
+            <button pButton type="button" label="Buscar" icon="pi pi-search" [loading]="store.cargando()" (click)="store.buscar()"></button>
+            <button pButton type="button" label="Limpiar filtros" icon="pi pi-filter-slash" severity="secondary" [text]="true" (click)="store.limpiarFiltros()"></button>
+        </div>
+    </section>
+
+    <section class="panel">
+        <p-table [value]="store.movimientos()" dataKey="id" [loading]="store.cargando()" [stripedRows]="true" size="small">
+            <ng-template #header>
+                <tr>
+                    <th>Fecha y hora</th>
+                    <th>Producto</th>
+                    <th>Tipo</th>
+                    <th class="num">Cantidad</th>
+                    <th class="num">Stock resultante</th>
+                    <th>Usuario</th>
+                    <th>Motivo u origen</th>
+                </tr>
+            </ng-template>
+
+            <ng-template #body let-movimiento>
+                <tr>
+                    <td class="nowrap">{{ formatearFechaHora(movimiento.fecha_hora) }}</td>
+                    <td class="nombre">{{ movimiento.producto_nombre }}</td>
+                    <td><p-tag [severity]="severidadTipo(movimiento.tipo)" [value]="movimiento.tipo_display" /></td>
+                    <td class="num">
+                        <span [class.negativo]="esNegativa(movimiento)" [class.positivo]="!esNegativa(movimiento)">
+                            {{ cantidadConSigno(movimiento) }}
+                        </span>
+                    </td>
+                    <td class="num">{{ stockResultante(movimiento) }}</td>
+                    <td>{{ movimiento.usuario_username }}</td>
+                    <td>
+                        {{ movimiento.motivo }}
+                        @if (movimiento.referencia_origen) {
+                            <small class="ayuda referencia">{{ movimiento.referencia_origen }}</small>
+                        }
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template #emptymessage>
+                <tr>
+                    <td colspan="7" class="vacio">No hay movimientos para los filtros elegidos.</td>
+                </tr>
+            </ng-template>
+        </p-table>
+
+        <div class="paginacion">
+            <span class="ayuda">
+                {{ store.total() }} movimientos · Página {{ store.pagina() }} de {{ store.totalPaginas() }}
+            </span>
+            <div class="acciones">
+                <button
+                    pButton
+                    type="button"
+                    label="Anterior"
+                    icon="pi pi-chevron-left"
+                    severity="secondary"
+                    [text]="true"
+                    [disabled]="store.pagina() <= 1 || store.cargando()"
+                    (click)="store.irAPagina(store.pagina() - 1)"></button>
+                <button
+                    pButton
+                    type="button"
+                    label="Siguiente"
+                    icon="pi pi-chevron-right"
+                    iconPos="right"
+                    severity="secondary"
+                    [text]="true"
+                    [disabled]="store.pagina() >= store.totalPaginas() || store.cargando()"
+                    (click)="store.irAPagina(store.pagina() + 1)"></button>
+            </div>
+        </div>
+    </section>
+</div>
+
+<p-dialog
+    [visible]="ingresoAbierto()"
+    (onHide)="cerrarIngreso()"
+    [modal]="true"
+    [draggable]="false"
+    [closable]="!store.guardando()"
+    [closeOnEscape]="!store.guardando()"
+    [style]="{ width: '34rem' }"
+    [breakpoints]="{ '640px': '95vw' }"
+    header="Registrar ingreso de mercadería">
+    <div class="formulario">
+        <div class="campo campo-completo">
+            <label>Producto</label>
+            <p-select
+                class="w-full"
+                [options]="opcionesIngreso()"
+                optionLabel="etiqueta"
+                optionValue="producto"
+                dataKey="id"
+                placeholder="Elegí un producto"
+                [filter]="true"
+                filterBy="etiqueta"
+                [ngModel]="ingreso().producto"
+                (ngModelChange)="cambiarIngreso('producto', $event)" />
+            @if (store.erroresCampos()['producto']; as error) {
+                <small class="error">{{ error }}</small>
+            }
+            <small class="ayuda">Solo se ofrecen productos activos: un producto desactivado no puede recibir mercadería.</small>
+        </div>
+
+        <div class="campo campo-completo">
+            <label for="i-cantidad">Cantidad recibida{{ abreviaturaIngreso() ? ' (' + abreviaturaIngreso() + ')' : '' }}</label>
+            <input
+                pInputText
+                id="i-cantidad"
+                type="text"
+                inputmode="decimal"
+                autocomplete="off"
+                placeholder="0"
+                [class.invalida]="store.erroresCampos()['cantidad']"
+                [ngModel]="ingreso().cantidad"
+                (ngModelChange)="cambiarIngreso('cantidad', $event)" />
+            @if (store.erroresCampos()['cantidad']; as error) {
+                <small class="error">{{ error }}</small>
+            }
+        </div>
+
+        <div class="campo campo-completo">
+            <label for="i-motivo">Motivo u origen</label>
+            <input
+                pInputText
+                id="i-motivo"
+                type="text"
+                maxlength="255"
+                autocomplete="off"
+                placeholder="Por ejemplo: compra a proveedor"
+                [class.invalida]="store.erroresCampos()['motivo']"
+                [ngModel]="ingreso().motivo"
+                (ngModelChange)="cambiarIngreso('motivo', $event)" />
+            @if (store.erroresCampos()['motivo']; as error) {
+                <small class="error">{{ error }}</small>
+            }
+        </div>
+
+        <div class="campo campo-completo">
+            <label for="i-referencia">Remito o referencia (opcional)</label>
+            <input
+                pInputText
+                id="i-referencia"
+                type="text"
+                maxlength="100"
+                autocomplete="off"
+                [class.invalida]="store.erroresCampos()['referencia']"
+                [ngModel]="ingreso().referencia"
+                (ngModelChange)="cambiarIngreso('referencia', $event)" />
+            @if (store.erroresCampos()['referencia']; as error) {
+                <small class="error">{{ error }}</small>
+            }
+        </div>
+    </div>
+
+    @if (store.errorFormulario()) {
+        <p-message severity="error" [text]="store.errorFormulario() ?? ''" />
+    }
+
+    <div class="acciones acciones-dialogo">
+        <button pButton type="button" label="Cancelar" severity="secondary" [text]="true" [disabled]="store.guardando()" (click)="cerrarIngreso()"></button>
+        <button pButton type="button" label="Registrar ingreso" icon="pi pi-check" [loading]="store.guardando()" (click)="guardarIngreso()"></button>
+    </div>
+</p-dialog>
+
+<p-dialog
+    [visible]="ajusteAbierto()"
+    (onHide)="cerrarAjuste()"
+    [modal]="true"
+    [draggable]="false"
+    [closable]="!store.guardando()"
+    [closeOnEscape]="!store.guardando()"
+    [style]="{ width: '34rem' }"
+    [breakpoints]="{ '640px': '95vw' }"
+    header="Registrar ajuste de stock">
+    <div class="formulario">
+        <p class="ayuda campo-completo">
+            Usá el ajuste para corregir diferencias entre el stock registrado y el real. Queda registrado con tu usuario y no se puede deshacer: un error se corrige con otro ajuste.
+        </p>
+
+        <div class="campo campo-completo">
+            <label>Producto</label>
+            <p-select
+                class="w-full"
+                [options]="opcionesAjuste()"
+                optionLabel="etiqueta"
+                optionValue="producto"
+                dataKey="id"
+                placeholder="Elegí un producto"
+                [filter]="true"
+                filterBy="etiqueta"
+                [ngModel]="ajuste().producto"
+                (ngModelChange)="cambiarAjuste('producto', $event)" />
+            @if (store.erroresCampos()['producto']; as error) {
+                <small class="error">{{ error }}</small>
+            }
+        </div>
+
+        <div class="campo">
+            <label>Qué querés hacer</label>
+            <p-select
+                class="w-full"
+                [options]="opcionesSentido"
+                optionLabel="nombre"
+                optionValue="id"
+                [ngModel]="ajuste().sentido"
+                (ngModelChange)="cambiarAjuste('sentido', $event)" />
+        </div>
+
+        <div class="campo">
+            <label for="a-cantidad">Cantidad{{ abreviaturaAjuste() ? ' (' + abreviaturaAjuste() + ')' : '' }}</label>
+            <input
+                pInputText
+                id="a-cantidad"
+                type="text"
+                inputmode="decimal"
+                autocomplete="off"
+                placeholder="0"
+                [class.invalida]="store.erroresCampos()['cantidad']"
+                [ngModel]="ajuste().cantidad"
+                (ngModelChange)="cambiarAjuste('cantidad', $event)" />
+            @if (store.erroresCampos()['cantidad']; as error) {
+                <small class="error">{{ error }}</small>
+            }
+        </div>
+
+        <div class="campo campo-completo">
+            <label for="a-motivo">Motivo</label>
+            <input
+                pInputText
+                id="a-motivo"
+                type="text"
+                maxlength="255"
+                autocomplete="off"
+                placeholder="Por ejemplo: merma, rotura o error de carga"
+                [class.invalida]="store.erroresCampos()['motivo']"
+                [ngModel]="ajuste().motivo"
+                (ngModelChange)="cambiarAjuste('motivo', $event)" />
+            @if (store.erroresCampos()['motivo']; as error) {
+                <small class="error">{{ error }}</small>
+            }
+        </div>
+    </div>
+
+    @if (store.errorFormulario()) {
+        <p-message severity="error" [text]="store.errorFormulario() ?? ''" />
+    }
+
+    <div class="acciones acciones-dialogo">
+        <button pButton type="button" label="Cancelar" severity="secondary" [text]="true" [disabled]="store.guardando()" (click)="cerrarAjuste()"></button>
+        <button pButton type="button" label="Registrar ajuste" icon="pi pi-check" [loading]="store.guardando()" (click)="guardarAjuste()"></button>
+    </div>
+</p-dialog>
