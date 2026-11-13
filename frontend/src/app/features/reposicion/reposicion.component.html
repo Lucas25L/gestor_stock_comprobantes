@@ -1,0 +1,68 @@
+<div class="pantalla">
+    <header class="encabezado">
+        <div>
+            <h1>Reposición</h1>
+            <p class="ayuda">
+                Productos activos con stock igual o inferior a su mínimo, del mayor al menor faltante.
+            </p>
+        </div>
+        <button
+            pButton
+            type="button"
+            label="Actualizar"
+            icon="pi pi-refresh"
+            severity="secondary"
+            [loading]="store.cargando()"
+            (click)="store.cargar()"></button>
+    </header>
+
+    @if (store.errorCarga()) {
+        <p-message severity="error" [text]="store.errorCarga() ?? ''" />
+    }
+
+    <section class="panel">
+        <p-table
+            [value]="store.productos()"
+            dataKey="id"
+            [loading]="store.cargando()"
+            [paginator]="store.productos().length > 15"
+            [rows]="15"
+            [stripedRows]="true"
+            size="small">
+            <ng-template #header>
+                <tr>
+                    <th>Producto</th>
+                    <th class="num">Stock</th>
+                    <th class="num">Mínimo</th>
+                    <th class="num">Faltante</th>
+                </tr>
+            </ng-template>
+
+            <ng-template #body let-producto>
+                <tr>
+                    <td>
+                        <div class="nombre">{{ producto.nombre }}</div>
+                        <small class="ayuda">{{ producto.categoria_nombre }}</small>
+                    </td>
+                    <td class="num">{{ formatearCantidad(producto.stock) }} {{ producto.unidad_abreviatura }}</td>
+                    <td class="num">{{ formatearCantidad(producto.stock_minimo) }} {{ producto.unidad_abreviatura }}</td>
+                    <td class="num">
+                        <p-tag
+                            severity="danger"
+                            [value]="formatearCantidad(producto.faltante) + ' ' + producto.unidad_abreviatura" />
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template #emptymessage>
+                <tr>
+                    <td colspan="4" class="vacio">
+                        @if (!store.errorCarga()) {
+                            No hay productos con stock bajo. No hace falta reponer nada por ahora.
+                        }
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </section>
+</div>
