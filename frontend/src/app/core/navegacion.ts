@@ -17,6 +17,7 @@ export const ACCESO = {
     ventas: ADMIN_Y_CAJERO,
     productos: TODOS,
     stock: ADMIN_Y_REPOSITOR,
+    reposicion: TODOS,
     comprobantes: ADMIN_Y_CAJERO,
 } as const;
 
@@ -26,5 +27,6 @@ export const MENU: readonly ItemMenu[] = [
     { etiqueta: 'Historial de ventas', ruta: '/ventas/historial', icono: 'pi-history', roles: ACCESO.ventas },
     { etiqueta: 'Productos', ruta: '/productos', icono: 'pi-box', roles: ACCESO.productos },
     { etiqueta: 'Stock', ruta: '/stock', icono: 'pi-database', roles: ACCESO.stock },
+    { etiqueta: 'Reposición', ruta: '/reposicion', icono: 'pi-exclamation-triangle', roles: ACCESO.reposicion },
     { etiqueta: 'Comprobantes', ruta: '/comprobantes', icono: 'pi-file', roles: ACCESO.comprobantes },
 ];
