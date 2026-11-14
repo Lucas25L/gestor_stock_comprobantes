@@ -1,0 +1,76 @@
+<div class="pantalla">
+    <div class="acciones no-imprimir">
+        <a pButton routerLink="/ventas/historial" label="Volver al historial" icon="pi pi-arrow-left" [outlined]="true"></a>
+        @if (store.comprobante()) {
+            <button pButton type="button" label="Imprimir" icon="pi pi-print" (click)="imprimir()"></button>
+        }
+    </div>
+
+    @if (idInvalido()) {
+        <p-message severity="error" text="Comprobante inválido: el identificador de la dirección no es correcto." />
+    } @else if (store.cargando()) {
+        <p class="ayuda">Cargando comprobante…</p>
+    } @else if (store.errorCarga()) {
+        <p-message severity="error" [text]="store.errorCarga() ?? ''" />
+    } @else if (store.comprobante(); as c) {
+        <article class="hoja">
+            <header class="cabecera">
+                <div>
+                    <p class="sistema">Sistema Gestor de Stock y Comprobantes</p>
+                    <h1 class="titulo">Comprobante interno</h1>
+                </div>
+                <div class="datos">
+                    <p class="numero">N° {{ c.numero_formateado }}</p>
+                    <p>Emitido: {{ fechaHora(c.fecha_emision) }}</p>
+                    <span class="estado" [class.anulado]="c.estado === 'anulado'">
+                        {{ c.estado === 'anulado' ? 'ANULADO' : 'EMITIDO' }}
+                    </span>
+                </div>
+            </header>
+
+            @if (c.estado === 'anulado') {
+                <p class="aviso-anulado">Comprobante anulado: la venta correspondiente fue anulada.</p>
+            }
+
+            <section class="venta">
+                <p><strong>Venta:</strong> #{{ c.contenido.venta_id }}</p>
+                <p><strong>Fecha de la venta:</strong> {{ fechaHora(c.contenido.fecha_venta) }}</p>
+                <p><strong>Registrada por:</strong> {{ c.contenido.registrada_por }}</p>
+                <p><strong>Medio de pago:</strong> {{ c.contenido.medio_pago }}</p>
+            </section>
+
+            <table class="lineas">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th class="num">Cantidad</th>
+                        <th class="num">Precio unitario</th>
+                        <th class="num">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (linea of c.contenido.lineas; track $index) {
+                        <tr>
+                            <td>{{ linea.producto }}</td>
+                            <td class="num">{{ cantidad(linea.cantidad) }} {{ linea.unidad }}</td>
+                            <td class="num">{{ dinero(linea.precio_unitario) }}</td>
+                            <td class="num">{{ dinero(linea.subtotal) }}</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <section class="totales">
+                <p class="total"><span>Total</span><span>{{ dinero(c.contenido.total) }}</span></p>
+                <p class="impuestos">
+                    <span>Impuestos nacionales incluidos (informativo)</span>
+                    <span>{{ dinero(c.contenido.impuestos_nacionales) }}</span>
+                </p>
+            </section>
+
+            <footer class="legal">
+                Documento interno de la operación comercial. No constituye un comprobante fiscal ni una factura electrónica.
+            </footer>
+        </article>
+    }
+</div>

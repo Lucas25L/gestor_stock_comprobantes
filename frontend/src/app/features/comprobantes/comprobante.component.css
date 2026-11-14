@@ -1,0 +1,157 @@
+.pantalla {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.acciones {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    width: 100%;
+    max-width: 50rem;
+}
+
+.ayuda {
+    color: #64748b;
+}
+
+/* El comprobante es una hoja clara y fija, pensada para imprimirse: no sigue el tema de la app. */
+.hoja {
+    width: 100%;
+    max-width: 50rem;
+    padding: 2rem;
+    background: #ffffff;
+    color: #1e293b;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+}
+
+.cabecera {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.sistema {
+    margin: 0;
+    color: #64748b;
+}
+
+.titulo {
+    margin: 0.25rem 0 0;
+    font-size: 1.75rem;
+}
+
+.datos {
+    text-align: right;
+}
+
+.datos p {
+    margin: 0.15rem 0;
+}
+
+.numero {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.estado {
+    display: inline-block;
+    margin-top: 0.25rem;
+    padding: 0.2rem 0.6rem;
+    border: 1px solid #15803d;
+    border-radius: 4px;
+    color: #15803d;
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+.estado.anulado {
+    border-color: #b91c1c;
+    color: #b91c1c;
+}
+
+.aviso-anulado {
+    margin: 1rem 0 0;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #b91c1c;
+    color: #b91c1c;
+    font-weight: 600;
+}
+
+.venta {
+    margin: 1rem 0;
+}
+
+.venta p {
+    margin: 0.2rem 0;
+}
+
+.lineas {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.lineas th,
+.lineas td {
+    padding: 0.5rem;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: left;
+}
+
+.lineas th {
+    background: #f8fafc;
+}
+
+.num {
+    text-align: right !important;
+}
+
+.totales {
+    margin: 1rem 0 0 auto;
+    max-width: 22rem;
+}
+
+.totales p {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 0.3rem 0;
+}
+
+.total {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.impuestos {
+    color: #64748b;
+    font-size: 0.85rem;
+}
+
+.legal {
+    margin-top: 1.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #e2e8f0;
+    color: #64748b;
+    font-size: 0.8rem;
+    text-align: center;
+}
+
+@media print {
+    .no-imprimir {
+        display: none !important;
+    }
+
+    .hoja {
+        max-width: none;
+        padding: 0;
+        border: none;
+        box-shadow: none;
+    }
+}
