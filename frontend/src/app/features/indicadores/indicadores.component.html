@@ -1,0 +1,185 @@
+<div class="pantalla">
+    <header class="encabezado">
+        <div>
+            <h1>Indicadores</h1>
+            <p class="ayuda">Ventas del período elegido. Las ventas anuladas no se incluyen.</p>
+        </div>
+    </header>
+
+    <section class="panel filtros">
+        <div class="atajos">
+            <span class="etiqueta">Período</span>
+            <button pButton type="button" label="Hoy" size="small" severity="secondary" [outlined]="true" (click)="aplicarRango('hoy')"></button>
+            <button pButton type="button" label="Últimos 7 días" size="small" severity="secondary" [outlined]="true" (click)="aplicarRango('ultimos7')"></button>
+            <button pButton type="button" label="Este mes" size="small" severity="secondary" [outlined]="true" (click)="aplicarRango('mes')"></button>
+        </div>
+
+        <div class="campos">
+            <div class="campo">
+                <label for="ind-desde">Desde</label>
+                <p-datepicker
+                    inputId="ind-desde"
+                    [ngModel]="desde()"
+                    (ngModelChange)="cambiarDesde($event)"
+                    dateFormat="dd/mm/yy"
+                    [maxDate]="hoy"
+                    [showIcon]="true"
+                    iconDisplay="input"
+                    appendTo="body"
+                    styleClass="w-full" />
+                @if (errores().desde) {
+                    <small class="error">{{ errores().desde }}</small>
+                }
+            </div>
+            <div class="campo">
+                <label for="ind-hasta">Hasta</label>
+                <p-datepicker
+                    inputId="ind-hasta"
+                    [ngModel]="hasta()"
+                    (ngModelChange)="cambiarHasta($event)"
+                    dateFormat="dd/mm/yy"
+                    [maxDate]="hoy"
+                    [showIcon]="true"
+                    iconDisplay="input"
+                    appendTo="body"
+                    styleClass="w-full" />
+                @if (errores().hasta) {
+                    <small class="error">{{ errores().hasta }}</small>
+                }
+            </div>
+            <div class="campo">
+                <label>Filas de los rankings</label>
+                <p-select
+                    class="w-full"
+                    [options]="opcionesLimite"
+                    optionLabel="etiqueta"
+                    optionValue="valor"
+                    [ngModel]="formulario().limite"
+                    (ngModelChange)="cambiarLimite($event)" />
+                @if (errores().limite) {
+                    <small class="error">{{ errores().limite }}</small>
+                }
+            </div>
+            <div class="campo">
+                <label>Unidad (ranking de productos)</label>
+                <p-select
+                    class="w-full"
+                    [options]="opcionesUnidad()"
+                    optionLabel="nombre"
+                    optionValue="id"
+                    [ngModel]="unidad()"
+                    (ngModelChange)="unidad.set($event)" />
+            </div>
+            <div class="campo accion">
+                <button
+                    pButton
+                    type="button"
+                    label="Consultar"
+                    icon="pi pi-search"
+                    [loading]="store.cargando()"
+                    (click)="consultar()"></button>
+            </div>
+        </div>
+    </section>
+
+    @if (store.errorCarga()) {
+        <p-message severity="error" [text]="store.errorCarga() ?? ''" />
+    }
+    @if (errorUnidades()) {
+        <p-message severity="warn" [text]="errorUnidades() ?? ''" />
+    }
+
+    @if (store.resumen(); as resumen) {
+        <section class="tarjetas">
+            <div class="tarjeta">
+                <span class="etiqueta">Ventas</span>
+                <strong>{{ resumen.cantidad_ventas }}</strong>
+            </div>
+            <div class="tarjeta">
+                <span class="etiqueta">Total vendido</span>
+                <strong>{{ formatearDinero(resumen.total_vendido) }}</strong>
+            </div>
+            <div class="tarjeta">
+                <span class="etiqueta">Ticket promedio</span>
+                <strong>{{ formatearDinero(resumen.ticket_promedio) }}</strong>
+            </div>
+            <div class="tarjeta">
+                <span class="etiqueta">Impuestos nacionales incluidos</span>
+                <strong>{{ formatearDinero(resumen.impuestos_nacionales) }}</strong>
+            </div>
+        </section>
+    }
+
+    @if (store.consultado()) {
+        <section class="panel">
+            <h2>Ventas por medio de pago</h2>
+            <p-table [value]="store.mediosPago()" dataKey="medio_pago" [stripedRows]="true" size="small">
+                <ng-template #header>
+                    <tr>
+                        <th>Medio de pago</th>
+                        <th class="num">Ventas</th>
+                        <th class="num">Total</th>
+                        <th class="num">Porcentaje</th>
+                    </tr>
+                </ng-template>
+                <ng-template #body let-fila>
+                    <tr>
+                        <td>{{ fila.nombre }}</td>
+                        <td class="num">{{ fila.cantidad_ventas }}</td>
+                        <td class="num">{{ formatearDinero(fila.total) }}</td>
+                        <td class="num">{{ formatearCantidad(fila.porcentaje) }} %</td>
+                    </tr>
+                </ng-template>
+                <ng-template #emptymessage>
+                    <tr><td colspan="4" class="vacio">No hay ventas en el período.</td></tr>
+                </ng-template>
+            </p-table>
+        </section>
+
+        <section class="panel">
+            <h2>Productos más vendidos</h2>
+            <p-table [value]="store.productos()" dataKey="producto" [stripedRows]="true" size="small">
+                <ng-template #header>
+                    <tr>
+                        <th>Producto</th>
+                        <th class="num">Cantidad vendida</th>
+                        <th class="num">Importe</th>
+                    </tr>
+                </ng-template>
+                <ng-template #body let-fila>
+                    <tr>
+                        <td>{{ fila.nombre }}</td>
+                        <td class="num">{{ formatearCantidad(fila.cantidad_vendida) }} {{ fila.unidad }}</td>
+                        <td class="num">{{ formatearDinero(fila.importe) }}</td>
+                    </tr>
+                </ng-template>
+                <ng-template #emptymessage>
+                    <tr><td colspan="3" class="vacio">No hay ventas en el período.</td></tr>
+                </ng-template>
+            </p-table>
+        </section>
+
+        <section class="panel">
+            <h2>Categorías por importe vendido</h2>
+            <p-table [value]="store.categorias()" dataKey="categoria" [stripedRows]="true" size="small">
+                <ng-template #header>
+                    <tr>
+                        <th>Categoría</th>
+                        <th class="num">Importe</th>
+                        <th class="num">Porcentaje</th>
+                    </tr>
+                </ng-template>
+                <ng-template #body let-fila>
+                    <tr>
+                        <td>{{ fila.nombre }}</td>
+                        <td class="num">{{ formatearDinero(fila.importe) }}</td>
+                        <td class="num">{{ formatearCantidad(fila.porcentaje) }} %</td>
+                    </tr>
+                </ng-template>
+                <ng-template #emptymessage>
+                    <tr><td colspan="3" class="vacio">No hay ventas en el período.</td></tr>
+                </ng-template>
+            </p-table>
+        </section>
+    }
+</div>
