@@ -33,6 +33,7 @@ export function mensajeDeError(error: unknown, porDefecto: string = MENSAJE_POR_
     if (error.status >= 500) {
         return 'El servidor tuvo un problema. Intentá de nuevo en unos minutos.';
     }
-    const mensajes = aplanar(error.error);
+    // Si varios campos fallan con el mismo texto (p. ej. nombre y abreviatura repetidos), se muestra una vez.
+    const mensajes = [...new Set(aplanar(error.error))];
     return mensajes.length > 0 ? mensajes.join(' ') : porDefecto;
 }

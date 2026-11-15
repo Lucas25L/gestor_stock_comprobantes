@@ -47,6 +47,16 @@ describe('mensajeDeError', () => {
         );
     });
 
+    it('muestra una sola vez un mensaje repetido en varios campos', () => {
+        const repetido = { nombre: ['Ya existe una unidad con este valor.'], abreviatura: ['Ya existe una unidad con este valor.'] };
+        expect(mensajeDeError(error(400, repetido))).toBe('Ya existe una unidad con este valor.');
+    });
+
+    it('conserva los mensajes distintos de campos distintos, en orden', () => {
+        const distintos = { nombre: ['Es obligatorio.'], abreviatura: ['Es demasiado larga.'] };
+        expect(mensajeDeError(error(400, distintos))).toBe('Es obligatorio. Es demasiado larga.');
+    });
+
     it('usa el mensaje por defecto si no es un error HTTP', () => {
         expect(mensajeDeError(new Error('x'), 'Falló.')).toBe('Falló.');
     });
