@@ -190,3 +190,40 @@ export interface NuevoAjuste {
     cantidad: string;
     motivo: string;
 }
+
+/** Resumen de ventas de un período (GET /indicadores/resumen/). Excluye ventas anuladas. */
+export interface ResumenVentas {
+    cantidad_ventas: number;
+    total_vendido: string;
+    impuestos_nacionales: string;
+    ticket_promedio: string;
+}
+
+/** Ventas agrupadas por medio de pago (GET /indicadores/por-medio-pago/). */
+export interface IndicadorMedioPago {
+    medio_pago: number;
+    nombre: string;
+    cantidad_ventas: number;
+    total: string;
+    /** Porcentaje sobre el total del período, como texto decimal ("37.50"). */
+    porcentaje: string;
+}
+
+/** Producto del ranking por cantidad vendida, expresada en su propia unidad. */
+export interface ProductoMasVendido {
+    producto: number;
+    nombre: string;
+    /** Nombre de la unidad de medida del producto. */
+    unidad: string;
+    permite_decimales: boolean;
+    cantidad_vendida: string;
+    importe: string;
+}
+
+/** Categoría del ranking por importe vendido. */
+export interface CategoriaMasVendida {
+    categoria: number;
+    nombre: string;
+    importe: string;
+    porcentaje: string;
+}
