@@ -34,6 +34,13 @@ export const routes: Routes = [
             { path: 'ventas/nueva', component: NuevaVentaComponent, canActivate: [rolGuard], data: { roles: ACCESO.ventas } },
             { path: 'ventas/historial', component: HistorialVentasComponent, canActivate: [rolGuard], data: { roles: ACCESO.ventas } },
             { path: 'comprobantes/:id', component: ComprobanteComponent, canActivate: [rolGuard], data: { roles: ACCESO.comprobantes } },
+            {
+                path: 'indicadores',
+                loadComponent: () =>
+                    import('./features/indicadores/indicadores.component').then((m) => m.IndicadoresComponent),
+                canActivate: [rolGuard],
+                data: { roles: ACCESO.indicadores },
+            },
         ],
     },
 
