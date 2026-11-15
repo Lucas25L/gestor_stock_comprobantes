@@ -87,3 +87,13 @@
     text-align: center;
     color: #64748b;
 }
+
+.grafico {
+    position: relative;
+    height: 280px;
+    margin-bottom: 1rem;
+}
+
+.grafico-dona {
+    height: 260px;
+}

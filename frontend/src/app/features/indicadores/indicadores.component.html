@@ -113,6 +113,11 @@
     @if (store.consultado()) {
         <section class="panel">
             <h2>Ventas por medio de pago</h2>
+            @if (store.mediosPago().length > 0) {
+                <div class="grafico grafico-dona">
+                    <p-chart type="doughnut" [data]="graficoMediosPago()" [options]="opcionesDona" ariaLabel="Importe vendido por medio de pago" />
+                </div>
+            }
             <p-table [value]="store.mediosPago()" dataKey="medio_pago" [stripedRows]="true" size="small">
                 <ng-template #header>
                     <tr>
@@ -138,6 +143,15 @@
 
         <section class="panel">
             <h2>Productos más vendidos</h2>
+            @if (store.productos().length > 0) {
+                @if (unidadProductos(); as unidad) {
+                    <div class="grafico">
+                        <p-chart type="bar" [data]="graficoProductos()" [options]="opcionesBarras" [ariaLabel]="'Cantidad vendida por producto, en ' + unidad" />
+                    </div>
+                } @else {
+                    <p class="ayuda">El ranking mezcla unidades de medida distintas, por eso no se grafica. Elegí una unidad para comparar.</p>
+                }
+            }
             <p-table [value]="store.productos()" dataKey="producto" [stripedRows]="true" size="small">
                 <ng-template #header>
                     <tr>
@@ -161,6 +175,11 @@
 
         <section class="panel">
             <h2>Categorías por importe vendido</h2>
+            @if (store.categorias().length > 0) {
+                <div class="grafico">
+                    <p-chart type="bar" [data]="graficoCategorias()" [options]="opcionesBarras" ariaLabel="Importe vendido por categoría" />
+                </div>
+            }
             <p-table [value]="store.categorias()" dataKey="categoria" [stripedRows]="true" size="small">
                 <ng-template #header>
                     <tr>
