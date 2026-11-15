@@ -1,0 +1,345 @@
+<div class="pantalla">
+    <header class="encabezado">
+        <h1>Catálogos</h1>
+        <p class="ayuda">
+            Categorías, unidades de medida y medios de pago. Desactivar conserva el historial: nada se elimina.
+        </p>
+    </header>
+
+    <section class="panel">
+        <p-tabs value="categorias">
+            <p-tablist>
+                <p-tab value="categorias">Categorías</p-tab>
+                <p-tab value="unidades">Unidades de medida</p-tab>
+                <p-tab value="medios">Medios de pago</p-tab>
+            </p-tablist>
+
+            <p-tabpanels>
+                <!-- ===== Categorías ===== -->
+                <p-tabpanel value="categorias">
+                    <div class="barra">
+                        <label class="check">
+                            <input
+                                type="checkbox"
+                                [ngModel]="store.categorias.incluirInactivos()"
+                                (ngModelChange)="store.categorias.mostrarInactivos($event)" />
+                            Mostrar desactivadas
+                        </label>
+                        <button pButton type="button" label="Nueva categoría" icon="pi pi-plus" (click)="abrirAltaCategoria()"></button>
+                    </div>
+
+                    @if (store.categorias.errorCarga()) {
+                        <p-message severity="error" [text]="store.categorias.errorCarga() ?? ''" />
+                    }
+                    @if (store.categorias.errorOperacion()) {
+                        <p-message severity="error" [text]="store.categorias.errorOperacion() ?? ''" />
+                    }
+
+                    <p-table [value]="store.categorias.items()" dataKey="id" [loading]="store.categorias.cargando()" [stripedRows]="true" size="small">
+                        <ng-template #header>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Descripción</th>
+                                <th>Estado</th>
+                                <th></th>
+                            </tr>
+                        </ng-template>
+                        <ng-template #body let-categoria>
+                            <tr [class.inactivo]="!categoria.activa">
+                                <td>{{ categoria.nombre }}</td>
+                                <td>{{ categoria.descripcion }}</td>
+                                <td>
+                                    @if (categoria.activa) {
+                                        <p-tag severity="success" value="Activa" />
+                                    } @else {
+                                        <p-tag severity="secondary" value="Desactivada" />
+                                    }
+                                </td>
+                                <td class="num acciones-fila">
+                                    <button pButton type="button" label="Editar" icon="pi pi-pencil" size="small" severity="secondary" [text]="true" (click)="abrirEdicionCategoria(categoria)"></button>
+                                    @if (categoria.activa) {
+                                        <button pButton type="button" label="Desactivar" icon="pi pi-ban" size="small" severity="danger" [text]="true" [disabled]="store.categorias.cambiandoEstado() !== null" (click)="pedirBajaCategoria(categoria)"></button>
+                                    } @else {
+                                        <button pButton type="button" label="Reactivar" icon="pi pi-replay" size="small" [text]="true" [loading]="store.categorias.cambiandoEstado() === categoria.id" [disabled]="store.categorias.cambiandoEstado() !== null" (click)="store.categorias.reactivar(categoria)"></button>
+                                    }
+                                </td>
+                            </tr>
+                        </ng-template>
+                        <ng-template #emptymessage>
+                            <tr><td colspan="4" class="vacio">No hay categorías.</td></tr>
+                        </ng-template>
+                    </p-table>
+                </p-tabpanel>
+
+                <!-- ===== Unidades de medida ===== -->
+                <p-tabpanel value="unidades">
+                    <div class="barra">
+                        <label class="check">
+                            <input
+                                type="checkbox"
+                                [ngModel]="store.unidades.incluirInactivos()"
+                                (ngModelChange)="store.unidades.mostrarInactivos($event)" />
+                            Mostrar desactivadas
+                        </label>
+                        <button pButton type="button" label="Nueva unidad" icon="pi pi-plus" (click)="abrirAltaUnidad()"></button>
+                    </div>
+
+                    @if (store.unidades.errorCarga()) {
+                        <p-message severity="error" [text]="store.unidades.errorCarga() ?? ''" />
+                    }
+                    @if (store.unidades.errorOperacion()) {
+                        <p-message severity="error" [text]="store.unidades.errorOperacion() ?? ''" />
+                    }
+
+                    <p-table [value]="store.unidades.items()" dataKey="id" [loading]="store.unidades.cargando()" [stripedRows]="true" size="small">
+                        <ng-template #header>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Abreviatura</th>
+                                <th>Decimales</th>
+                                <th>Estado</th>
+                                <th></th>
+                            </tr>
+                        </ng-template>
+                        <ng-template #body let-unidad>
+                            <tr [class.inactivo]="!unidad.activo">
+                                <td>{{ unidad.nombre }}</td>
+                                <td>{{ unidad.abreviatura }}</td>
+                                <td>{{ unidad.permite_decimales ? 'Sí' : 'No' }}</td>
+                                <td>
+                                    @if (unidad.activo) {
+                                        <p-tag severity="success" value="Activa" />
+                                    } @else {
+                                        <p-tag severity="secondary" value="Desactivada" />
+                                    }
+                                </td>
+                                <td class="num acciones-fila">
+                                    <button pButton type="button" label="Editar" icon="pi pi-pencil" size="small" severity="secondary" [text]="true" (click)="abrirEdicionUnidad(unidad)"></button>
+                                    @if (unidad.activo) {
+                                        <button pButton type="button" label="Desactivar" icon="pi pi-ban" size="small" severity="danger" [text]="true" [disabled]="store.unidades.cambiandoEstado() !== null" (click)="pedirBajaUnidad(unidad)"></button>
+                                    } @else {
+                                        <button pButton type="button" label="Reactivar" icon="pi pi-replay" size="small" [text]="true" [loading]="store.unidades.cambiandoEstado() === unidad.id" [disabled]="store.unidades.cambiandoEstado() !== null" (click)="store.unidades.reactivar(unidad)"></button>
+                                    }
+                                </td>
+                            </tr>
+                        </ng-template>
+                        <ng-template #emptymessage>
+                            <tr><td colspan="5" class="vacio">No hay unidades de medida.</td></tr>
+                        </ng-template>
+                    </p-table>
+                </p-tabpanel>
+
+                <!-- ===== Medios de pago ===== -->
+                <p-tabpanel value="medios">
+                    <div class="barra">
+                        <label class="check">
+                            <input
+                                type="checkbox"
+                                [ngModel]="store.mediosPago.incluirInactivos()"
+                                (ngModelChange)="store.mediosPago.mostrarInactivos($event)" />
+                            Mostrar desactivados
+                        </label>
+                        <button pButton type="button" label="Nuevo medio de pago" icon="pi pi-plus" (click)="abrirAltaMedio()"></button>
+                    </div>
+
+                    @if (store.mediosPago.errorCarga()) {
+                        <p-message severity="error" [text]="store.mediosPago.errorCarga() ?? ''" />
+                    }
+                    @if (store.mediosPago.errorOperacion()) {
+                        <p-message severity="error" [text]="store.mediosPago.errorOperacion() ?? ''" />
+                    }
+
+                    <p-table [value]="store.mediosPago.items()" dataKey="id" [loading]="store.mediosPago.cargando()" [stripedRows]="true" size="small">
+                        <ng-template #header>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Descripción</th>
+                                <th>Estado</th>
+                                <th></th>
+                            </tr>
+                        </ng-template>
+                        <ng-template #body let-medio>
+                            <tr [class.inactivo]="!medio.activo">
+                                <td>{{ medio.nombre }}</td>
+                                <td>{{ medio.descripcion }}</td>
+                                <td>
+                                    @if (medio.activo) {
+                                        <p-tag severity="success" value="Activo" />
+                                    } @else {
+                                        <p-tag severity="secondary" value="Desactivado" />
+                                    }
+                                </td>
+                                <td class="num acciones-fila">
+                                    <button pButton type="button" label="Editar" icon="pi pi-pencil" size="small" severity="secondary" [text]="true" (click)="abrirEdicionMedio(medio)"></button>
+                                    @if (medio.activo) {
+                                        <button pButton type="button" label="Desactivar" icon="pi pi-ban" size="small" severity="danger" [text]="true" [disabled]="store.mediosPago.cambiandoEstado() !== null" (click)="pedirBajaMedio(medio)"></button>
+                                    } @else {
+                                        <button pButton type="button" label="Reactivar" icon="pi pi-replay" size="small" [text]="true" [loading]="store.mediosPago.cambiandoEstado() === medio.id" [disabled]="store.mediosPago.cambiandoEstado() !== null" (click)="store.mediosPago.reactivar(medio)"></button>
+                                    }
+                                </td>
+                            </tr>
+                        </ng-template>
+                        <ng-template #emptymessage>
+                            <tr><td colspan="4" class="vacio">No hay medios de pago.</td></tr>
+                        </ng-template>
+                    </p-table>
+                </p-tabpanel>
+            </p-tabpanels>
+        </p-tabs>
+    </section>
+</div>
+
+<!-- ===== Diálogo: categoría ===== -->
+<p-dialog
+    [visible]="formCategoria.abierto()"
+    (onHide)="formCategoria.cerrar()"
+    [modal]="true"
+    [draggable]="false"
+    [closable]="!store.categorias.guardando()"
+    [closeOnEscape]="!store.categorias.guardando()"
+    [style]="{ width: '30rem' }"
+    [breakpoints]="{ '640px': '95vw' }"
+    [header]="formCategoria.editando() ? 'Editar categoría' : 'Nueva categoría'">
+    <div class="formulario">
+        <div class="campo">
+            <label for="cat-nombre">Nombre</label>
+            <input pInputText id="cat-nombre" type="text" autocomplete="off" [attr.maxlength]="maxNombreCategoria"
+                [class.invalida]="store.categorias.erroresCampos().nombre"
+                [ngModel]="formCategoria.formulario().nombre"
+                (ngModelChange)="formCategoria.cambiar('nombre', $event)" />
+            @if (store.categorias.erroresCampos().nombre; as error) {
+                <small class="error">{{ error }}</small>
+            }
+        </div>
+        <div class="campo">
+            <label for="cat-desc">Descripción (opcional)</label>
+            <input pInputText id="cat-desc" type="text" autocomplete="off" [attr.maxlength]="maxDescripcion"
+                [class.invalida]="store.categorias.erroresCampos().descripcion"
+                [ngModel]="formCategoria.formulario().descripcion"
+                (ngModelChange)="formCategoria.cambiar('descripcion', $event)" />
+            @if (store.categorias.erroresCampos().descripcion; as error) {
+                <small class="error">{{ error }}</small>
+            }
+        </div>
+    </div>
+    @if (store.categorias.errorFormulario()) {
+        <p-message severity="error" [text]="store.categorias.errorFormulario() ?? ''" />
+    }
+    <div class="acciones-dialogo">
+        <button pButton type="button" label="Cancelar" severity="secondary" [text]="true" [disabled]="store.categorias.guardando()" (click)="formCategoria.cerrar()"></button>
+        <button pButton type="button" label="Guardar" icon="pi pi-check" [loading]="store.categorias.guardando()" (click)="guardarCategoria()"></button>
+    </div>
+</p-dialog>
+
+<!-- ===== Diálogo: unidad de medida ===== -->
+<p-dialog
+    [visible]="formUnidad.abierto()"
+    (onHide)="formUnidad.cerrar()"
+    [modal]="true"
+    [draggable]="false"
+    [closable]="!store.unidades.guardando()"
+    [closeOnEscape]="!store.unidades.guardando()"
+    [style]="{ width: '30rem' }"
+    [breakpoints]="{ '640px': '95vw' }"
+    [header]="formUnidad.editando() ? 'Editar unidad de medida' : 'Nueva unidad de medida'">
+    <div class="formulario">
+        <div class="campo">
+            <label for="uni-nombre">Nombre</label>
+            <input pInputText id="uni-nombre" type="text" autocomplete="off" [attr.maxlength]="maxNombreUnidad"
+                [class.invalida]="store.unidades.erroresCampos().nombre"
+                [ngModel]="formUnidad.formulario().nombre"
+                (ngModelChange)="formUnidad.cambiar('nombre', $event)" />
+            @if (store.unidades.erroresCampos().nombre; as error) {
+                <small class="error">{{ error }}</small>
+            }
+        </div>
+        <div class="campo">
+            <label for="uni-abrev">Abreviatura</label>
+            <input pInputText id="uni-abrev" type="text" autocomplete="off" [attr.maxlength]="maxAbreviatura"
+                [class.invalida]="store.unidades.erroresCampos().abreviatura"
+                [ngModel]="formUnidad.formulario().abreviatura"
+                (ngModelChange)="formUnidad.cambiar('abreviatura', $event)" />
+            @if (store.unidades.erroresCampos().abreviatura; as error) {
+                <small class="error">{{ error }}</small>
+            }
+        </div>
+        <div class="campo">
+            <label class="check">
+                <input type="checkbox"
+                    [ngModel]="formUnidad.formulario().permiteDecimales"
+                    (ngModelChange)="formUnidad.cambiar('permiteDecimales', $event)" />
+                Permite cantidades con decimales (peso o volumen)
+            </label>
+        </div>
+    </div>
+    @if (store.unidades.errorFormulario()) {
+        <p-message severity="error" [text]="store.unidades.errorFormulario() ?? ''" />
+    }
+    <div class="acciones-dialogo">
+        <button pButton type="button" label="Cancelar" severity="secondary" [text]="true" [disabled]="store.unidades.guardando()" (click)="formUnidad.cerrar()"></button>
+        <button pButton type="button" label="Guardar" icon="pi pi-check" [loading]="store.unidades.guardando()" (click)="guardarUnidad()"></button>
+    </div>
+</p-dialog>
+
+<!-- ===== Diálogo: medio de pago ===== -->
+<p-dialog
+    [visible]="formMedio.abierto()"
+    (onHide)="formMedio.cerrar()"
+    [modal]="true"
+    [draggable]="false"
+    [closable]="!store.mediosPago.guardando()"
+    [closeOnEscape]="!store.mediosPago.guardando()"
+    [style]="{ width: '30rem' }"
+    [breakpoints]="{ '640px': '95vw' }"
+    [header]="formMedio.editando() ? 'Editar medio de pago' : 'Nuevo medio de pago'">
+    <div class="formulario">
+        <div class="campo">
+            <label for="med-nombre">Nombre</label>
+            <input pInputText id="med-nombre" type="text" autocomplete="off" [attr.maxlength]="maxNombreMedioPago"
+                [class.invalida]="store.mediosPago.erroresCampos().nombre"
+                [ngModel]="formMedio.formulario().nombre"
+                (ngModelChange)="formMedio.cambiar('nombre', $event)" />
+            @if (store.mediosPago.erroresCampos().nombre; as error) {
+                <small class="error">{{ error }}</small>
+            }
+        </div>
+        <div class="campo">
+            <label for="med-desc">Descripción (opcional)</label>
+            <input pInputText id="med-desc" type="text" autocomplete="off" [attr.maxlength]="maxDescripcion"
+                [class.invalida]="store.mediosPago.erroresCampos().descripcion"
+                [ngModel]="formMedio.formulario().descripcion"
+                (ngModelChange)="formMedio.cambiar('descripcion', $event)" />
+            @if (store.mediosPago.erroresCampos().descripcion; as error) {
+                <small class="error">{{ error }}</small>
+            }
+        </div>
+    </div>
+    @if (store.mediosPago.errorFormulario()) {
+        <p-message severity="error" [text]="store.mediosPago.errorFormulario() ?? ''" />
+    }
+    <div class="acciones-dialogo">
+        <button pButton type="button" label="Cancelar" severity="secondary" [text]="true" [disabled]="store.mediosPago.guardando()" (click)="formMedio.cerrar()"></button>
+        <button pButton type="button" label="Guardar" icon="pi pi-check" [loading]="store.mediosPago.guardando()" (click)="guardarMedio()"></button>
+    </div>
+</p-dialog>
+
+<!-- ===== Confirmación de baja (compartida) ===== -->
+<p-dialog
+    [visible]="baja() !== null"
+    (onHide)="cancelarBaja()"
+    [modal]="true"
+    [draggable]="false"
+    [style]="{ width: '28rem' }"
+    [breakpoints]="{ '640px': '95vw' }"
+    header="Confirmar desactivación">
+    @if (baja(); as pendiente) {
+        <p>¿Desactivar <strong>{{ pendiente.nombre }}</strong>?</p>
+        <p class="ayuda">
+            Deja de ofrecerse en las pantallas nuevas. Lo ya registrado se conserva y podés reactivarlo cuando quieras.
+        </p>
+        <div class="acciones-dialogo">
+            <button pButton type="button" label="Cancelar" severity="secondary" [text]="true" (click)="cancelarBaja()"></button>
+            <button pButton type="button" label="Desactivar" icon="pi pi-ban" severity="danger" (click)="confirmarBaja()"></button>
+        </div>
+    }
+</p-dialog>

@@ -1,0 +1,82 @@
+.pantalla {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.encabezado h1 {
+    margin: 0;
+}
+
+.ayuda {
+    margin: 0.25rem 0 0;
+    color: #64748b;
+}
+
+.panel {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.barra {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin: 1rem 0;
+}
+
+.check {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.formulario {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.error {
+    color: #dc2626;
+}
+
+.invalida {
+    border-color: #dc2626;
+}
+
+.acciones-dialogo {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+tr.inactivo td {
+    color: #94a3b8;
+}
+
+.num {
+    text-align: right;
+}
+
+.acciones-fila {
+    white-space: nowrap;
+}
+
+.vacio {
+    padding: 1.5rem;
+    text-align: center;
+    color: #64748b;
+}
