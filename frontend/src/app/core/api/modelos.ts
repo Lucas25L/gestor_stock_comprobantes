@@ -176,6 +176,11 @@ export interface DatosUnidad {
     permite_decimales: boolean;
 }
 
+export interface DatosMedioPago {
+    nombre: string;
+    descripcion: string;
+}
+
 export interface NuevoIngreso {
     producto: number;
     /** Siempre positiva, con hasta 3 decimales. */
