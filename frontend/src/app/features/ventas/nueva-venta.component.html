@@ -17,6 +17,7 @@
                     severity="success"
                     icon="pi pi-file"
                     [value]="'Comprobante N° ' + comprobante.numero_formateado" />
+                <a pButton [routerLink]="['/comprobantes', comprobante.id]" label="Ver / imprimir" icon="pi pi-print" [outlined]="true"></a>
             } @else {
                 @if (store.errorComprobante()) {
                     <p-message severity="error" [text]="store.errorComprobante() ?? ''" />

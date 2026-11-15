@@ -1,5 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -22,6 +23,7 @@ import { NuevaVentaStore } from './nueva-venta.store';
         ButtonModule,
         InputTextModule,
         MessageModule,
+        RouterLink,
         SelectModule,
         TableModule,
         TagModule,

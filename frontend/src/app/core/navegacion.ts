@@ -28,5 +28,4 @@ export const MENU: readonly ItemMenu[] = [
     { etiqueta: 'Productos', ruta: '/productos', icono: 'pi-box', roles: ACCESO.productos },
     { etiqueta: 'Stock', ruta: '/stock', icono: 'pi-database', roles: ACCESO.stock },
     { etiqueta: 'Reposición', ruta: '/reposicion', icono: 'pi-exclamation-triangle', roles: ACCESO.reposicion },
-    { etiqueta: 'Comprobantes', ruta: '/comprobantes', icono: 'pi-file', roles: ACCESO.comprobantes },
 ];

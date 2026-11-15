@@ -184,7 +184,9 @@
                     </td>
                     <td>
                         @if (venta.comprobante_numero) {
-                            <p-tag severity="info" icon="pi pi-file" [value]="'N° ' + venta.comprobante_numero" />
+                            <a [routerLink]="['/comprobantes', venta.comprobante]" title="Ver e imprimir el comprobante">
+                                <p-tag severity="info" icon="pi pi-file" [value]="'N° ' + venta.comprobante_numero" />
+                            </a>
                         } @else if (venta.activa) {
                             <button
                                 pButton

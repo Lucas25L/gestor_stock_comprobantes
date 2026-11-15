@@ -11,6 +11,7 @@ import { StockComponent } from './features/stock/stock.component';
 import { ReposicionComponent } from './features/reposicion/reposicion.component';
 import { NuevaVentaComponent } from './features/ventas/nueva-venta.component';
 import { HistorialVentasComponent } from './features/ventas/historial-ventas.component';
+import { ComprobanteComponent } from './features/comprobantes/comprobante.component';
 import { VisorComprobanteComponent } from './features/comprobantes/visor-comprobante.component';
 
 export const routes: Routes = [
@@ -33,7 +34,7 @@ export const routes: Routes = [
             { path: 'ventas', redirectTo: 'ventas/nueva', pathMatch: 'full' },
             { path: 'ventas/nueva', component: NuevaVentaComponent, canActivate: [rolGuard], data: { roles: ACCESO.ventas } },
             { path: 'ventas/historial', component: HistorialVentasComponent, canActivate: [rolGuard], data: { roles: ACCESO.ventas } },
-            { path: 'comprobantes', component: VisorComprobanteComponent, canActivate: [rolGuard], data: { roles: ACCESO.comprobantes } },
+            { path: 'comprobantes/:id', component: ComprobanteComponent, canActivate: [rolGuard], data: { roles: ACCESO.comprobantes } },
         ],
     },
 

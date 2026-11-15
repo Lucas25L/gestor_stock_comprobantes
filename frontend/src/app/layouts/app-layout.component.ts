@@ -27,6 +27,17 @@ import { SidebarComponent } from '../core/components/sidebar/sidebar.component';
                 padding: 1.5rem;
                 overflow-y: auto;
             }
+
+            @media print {
+                app-sidebar {
+                    display: none !important;
+                }
+
+                .content {
+                    padding: 0;
+                    overflow: visible;
+                }
+            }
         `]
 })
 export class AppLayoutComponent {}
