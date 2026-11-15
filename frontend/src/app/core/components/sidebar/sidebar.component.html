@@ -1,4 +1,4 @@
-<aside class="sidebar">
+<aside class="sidebar" [class.abierto]="abierto()">
 
     <div class="logo-section">
         <h2>Gestor de Stock</h2>
@@ -7,7 +7,7 @@
 
     <nav class="menu">
         @for (item of items(); track item.ruta) {
-            <a [routerLink]="item.ruta" routerLinkActive="active-link">
+            <a [routerLink]="item.ruta" routerLinkActive="active-link" (click)="navegar.emit()">
                 <i [class]="'pi ' + item.icono"></i>
                 {{ item.etiqueta }}
             </a>

@@ -70,3 +70,22 @@
 .user-info small {
     color: #9ca3af;
 }
+
+/* Pantallas chicas: el menú es un panel que se desliza desde la izquierda. */
+@media (max-width: 767px) {
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 1000;
+        min-height: 0;
+        overflow-y: auto;
+        transform: translateX(-100%);
+        transition: transform 0.2s ease;
+    }
+
+    .sidebar.abierto {
+        transform: translateX(0);
+    }
+}
