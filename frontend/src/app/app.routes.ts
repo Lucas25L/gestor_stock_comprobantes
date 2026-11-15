@@ -41,6 +41,13 @@ export const routes: Routes = [
                 canActivate: [rolGuard],
                 data: { roles: ACCESO.indicadores },
             },
+            {
+                path: 'catalogos',
+                loadComponent: () =>
+                    import('./features/catalogos/catalogos.component').then((m) => m.CatalogosComponent),
+                canActivate: [rolGuard],
+                data: { roles: ACCESO.catalogos },
+            },
         ],
     },
 

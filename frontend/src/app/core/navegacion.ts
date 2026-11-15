@@ -21,6 +21,7 @@ export const ACCESO = {
     reposicion: TODOS,
     comprobantes: ADMIN_Y_CAJERO,
     indicadores: SOLO_ADMINISTRADOR,
+    catalogos: SOLO_ADMINISTRADOR,
 } as const;
 
 export const MENU: readonly ItemMenu[] = [
@@ -31,4 +32,5 @@ export const MENU: readonly ItemMenu[] = [
     { etiqueta: 'Stock', ruta: '/stock', icono: 'pi-database', roles: ACCESO.stock },
     { etiqueta: 'Reposición', ruta: '/reposicion', icono: 'pi-exclamation-triangle', roles: ACCESO.reposicion },
     { etiqueta: 'Indicadores', ruta: '/indicadores', icono: 'pi-chart-bar', roles: ACCESO.indicadores },
+    { etiqueta: 'Catálogos', ruta: '/catalogos', icono: 'pi-list', roles: ACCESO.catalogos },
 ];
