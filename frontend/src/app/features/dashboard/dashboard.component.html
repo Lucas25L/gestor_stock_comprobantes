@@ -1,0 +1,57 @@
+<div class="pantalla">
+    <header class="encabezado">
+        <h1>Bienvenido, {{ authService.usuarioActual()?.username }}</h1>
+        <p class="ayuda">Rol: {{ authService.rol() }}</p>
+    </header>
+
+    @if (store.errorStock()) {
+        <p-message severity="error" [text]="store.errorStock() ?? ''" />
+    }
+    @if (store.errorVentas()) {
+        <p-message severity="error" [text]="store.errorVentas() ?? ''" />
+    }
+
+    <section class="tarjetas">
+        @if (esAdministrador()) {
+            @if (store.resumenHoy(); as hoy) {
+                <div class="tarjeta">
+                    <span class="etiqueta">Ventas de hoy</span>
+                    <strong>{{ hoy.cantidad_ventas }}</strong>
+                    <small class="ayuda">Total {{ formatearDinero(hoy.total_vendido) }}</small>
+                </div>
+            }
+            @if (store.resumenMes(); as mes) {
+                <div class="tarjeta">
+                    <span class="etiqueta">Ventas del mes</span>
+                    <strong>{{ mes.cantidad_ventas }}</strong>
+                    <small class="ayuda">
+                        Total {{ formatearDinero(mes.total_vendido) }} · Ticket promedio {{ formatearDinero(mes.ticket_promedio) }}
+                    </small>
+                </div>
+            }
+        }
+
+        @if (store.cantidadStockBajo() !== null) {
+            <a class="tarjeta tarjeta-enlace" routerLink="/reposicion">
+                <span class="etiqueta">Productos con stock bajo</span>
+                <strong [class.alerta]="store.cantidadStockBajo()! > 0">{{ store.cantidadStockBajo() }}</strong>
+                <small class="ayuda">Ver lista de reposición</small>
+            </a>
+        }
+    </section>
+
+    <section>
+        <h2>Accesos directos</h2>
+        <div class="accesos">
+            @for (acceso of accesos(); track acceso.ruta) {
+                <a class="acceso" [routerLink]="acceso.ruta">
+                    <i [class]="'pi ' + acceso.icono"></i>
+                    <div>
+                        <strong>{{ acceso.etiqueta }}</strong>
+                        <small class="ayuda">{{ acceso.descripcion }}</small>
+                    </div>
+                </a>
+            }
+        </div>
+    </section>
+</div>
