@@ -3,6 +3,7 @@ import { Routes } from '@angular/router';
 import { ACCESO } from './core/navegacion';
 import { authGuard } from './core/guards/auth.guard';
 import { rolGuard } from './core/guards/rol.guard';
+import { loginGuard } from './core/guards/login.guard';
 import { AppLayoutComponent } from './layouts/app-layout.component';
 import { LoginComponent } from './features/auth/login.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
@@ -16,8 +17,8 @@ import { ComprobanteComponent } from './features/comprobantes/comprobante.compon
 export const routes: Routes = [
     { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
 
-    // Login: fuera del layout y sin guard.
-    { path: 'login', component: LoginComponent },
+    // Login: fuera del layout; si ya hay sesión, loginGuard redirige al inicio.
+    { path: 'login', component: LoginComponent, canActivate: [loginGuard] },
 
     // Rutas protegidas: exigen sesión (authGuard) y un rol permitido (rolGuard).
     {
