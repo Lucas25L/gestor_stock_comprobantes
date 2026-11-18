@@ -15,6 +15,7 @@ const DESCRIPCIONES: Record<string, string> = {
     '/stock': 'Registrar ingresos, ajustes y consultar movimientos.',
     '/reposicion': 'Productos con stock bajo para planificar la compra.',
     '/indicadores': 'Ventas del período con gráficos y rankings.',
+    '/catalogos': 'Administrar categorías, unidades de medida y medios de pago.',
 };
 
 @Component({
