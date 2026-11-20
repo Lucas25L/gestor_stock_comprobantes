@@ -3,7 +3,7 @@ from django.db import migrations
 ROLES = (
     ('Administrador', 'Gestiona usuarios, catálogo, stock, ventas, indicadores y auditoría.'),
     ('Cajero', 'Registra ventas, emite comprobantes y anula ventas.'),
-    ('Repositor', 'Registra ingresos y ajustes de stock y procesa comprobantes de proveedores por OCR.'),
+    ('Repositor', 'Registra ingresos y ajustes de stock.'),
 )
 
 
